@@ -120,7 +120,37 @@ function setupInfiniteScroll() {
 function renderPreview(){var b=document.getElementById('preview');if(!b)return;if(pendingImage){b.innerHTML='<div class="preview-wrap"><img src="'+pendingImage+'" class="preview-img" alt=""><button class="preview-remove" onclick="removePendingImage()">x</button></div>'}else{b.innerHTML=''}}
 function esc(t){var d=document.createElement('div');d.textContent=t;return d.innerHTML}
 
-function selectImage(e){var f=e.target.files[0];if(!f)return;if(!f.type.startsWith('image/')){notify('only images are allowed');e.target.value='';return}var r=new FileReader();r.onload=function(ev){pendingImage=ev.target.result;renderPreview()};r.readAsDataURL(f);e.target.value=''}
+function compressImage(file, cb) {
+  var reader = new FileReader();
+  reader.onload = function(ev) {
+    var img = new Image();
+    img.onload = function() {
+      var canvas = document.createElement('canvas');
+      var w = img.width, h = img.height;
+      var max = 1200;
+      if (w > max) { h = h * max / w; w = max; }
+      canvas.width = w;
+      canvas.height = h;
+      canvas.getContext('2d').drawImage(img, 0, 0, w, h);
+      canvas.toBlob(function(blob) {
+        var r2 = new FileReader();
+        r2.onload = function() { cb(r2.result) };
+        r2.readAsDataURL(blob);
+      }, 'image/webp', 0.8);
+    };
+    img.src = ev.target.result;
+  };
+  reader.readAsDataURL(file);
+}
+
+function selectImage(e) {
+  var f = e.target.files[0];
+  if (!f) return;
+  if (!f.type.startsWith('image/')) { notify('only images are allowed'); e.target.value = ''; return; }
+  notify('compressing...');
+  compressImage(f, function(data) { pendingImage = data; renderPreview(); notify('image ready') });
+  e.target.value = '';
+}
 function removePendingImage(){pendingImage=null;renderPreview()}
 
 async function submitPost(){var c=document.getElementById('post-content').value.trim();if(!c&&!pendingImage)return;try{await fetch(API+'/api/posts',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({content:c,image:pendingImage})});pendingImage=null;renderPreview();document.getElementById('post-content').value='';nextCursor=null;await loadPosts(false);notify('posted')}catch(e){notify('failed to post')}}
