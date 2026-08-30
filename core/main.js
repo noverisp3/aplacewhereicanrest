@@ -218,7 +218,9 @@ async function submitPost(){
 }
 
 var deleteConfirmId = null;
+var deleteTimer = null;
 function deletePost(i){
+  clearTimeout(deleteTimer);
   if(deleteConfirmId === i){
     doDelete(i);
     deleteConfirmId = null;
@@ -234,6 +236,13 @@ function deletePost(i){
       b.classList.remove('confirm');
     }
   });
+  deleteTimer = setTimeout(function(){
+    deleteConfirmId = null;
+    document.querySelectorAll('.post-delete').forEach(function(b){
+      b.textContent = 'delete';
+      b.classList.remove('confirm');
+    });
+  }, 5000);
 }
 async function doDelete(i){
   var token=getToken();
