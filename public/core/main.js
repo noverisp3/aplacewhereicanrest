@@ -218,6 +218,7 @@ async function submitPost(){
 }
 
 async function deletePost(i){
+  if(!confirm('delete this post?'))return;
   var token=getToken();
   if(!token)return;
   try{
