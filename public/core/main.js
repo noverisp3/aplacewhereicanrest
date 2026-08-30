@@ -118,7 +118,7 @@ function setupInfiniteScroll() {
 }
 
 function renderPreview(){var b=document.getElementById('preview');if(!b)return;if(pendingImage){b.innerHTML='<div class="preview-wrap"><img src="'+pendingImage+'" class="preview-img" alt=""><button class="preview-remove" onclick="removePendingImage()">x</button></div>'}else{b.innerHTML=''}}
-function esc(t){var d=document.createElement('div');d.textContent=t;return d.innerHTML}
+function esc(t){var d=document.createElement('div');d.textContent=t;return d.innerHTML.replace(/\n/g,'<br>')}
 
 function compressImage(file, cb) {
   var reader = new FileReader();
@@ -155,7 +155,9 @@ function removePendingImage(){pendingImage=null;renderPreview()}
 
 async function submitPost(){var c=document.getElementById('post-content').value.trim();if(!c&&!pendingImage)return;try{await fetch(API+'/api/posts',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({content:c,image:pendingImage})});pendingImage=null;renderPreview();document.getElementById('post-content').value='';nextCursor=null;await loadPosts(false);notify('posted')}catch(e){notify('failed to post')}}
 
-async function deletePost(i){try{await fetch(API+'/api/posts/'+i,{method:'DELETE'});nextCursor=null;await loadPosts(false)}catch(e){notify('failed to delete')}}
+const DELETE_SECRET = 'rest-mi-2026';
+
+async function deletePost(i){try{await fetch(API+'/api/posts/'+i,{method:'DELETE',headers:{'x-delete-secret':DELETE_SECRET}});nextCursor=null;await loadPosts(false)}catch(e){notify('failed to delete')}}
 
 function notify(m){var e=document.createElement('div');e.className='notification';e.textContent=m;document.body.appendChild(e);setTimeout(function(){e.remove()},2500)}
 

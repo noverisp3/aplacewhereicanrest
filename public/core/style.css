@@ -403,6 +403,8 @@ main {
   font-size: 0.9rem;
   line-height: 1.8;
   color: var(--text);
+  white-space: pre-wrap;
+  word-break: break-word;
 }
 
 .post-image {

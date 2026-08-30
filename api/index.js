@@ -8,7 +8,7 @@ export default {
     const cors = {
       'Access-Control-Allow-Origin': '*',
       'Access-Control-Allow-Methods': 'GET, POST, DELETE, OPTIONS',
-      'Access-Control-Allow-Headers': 'Content-Type',
+      'Access-Control-Allow-Headers': 'Content-Type, x-delete-secret',
     };
 
     if (request.method === 'OPTIONS') return new Response(null, { headers: cors });
@@ -66,6 +66,10 @@ export default {
 
     const del = path.match(/^\/api\/posts\/(.+)$/);
     if (del && request.method === 'DELETE') {
+      const secret = request.headers.get('x-delete-secret');
+      if (secret !== env.DELETE_SECRET) {
+        return json({ error: 'unauthorized' }, cors, 401);
+      }
       await env.DB.prepare('DELETE FROM posts WHERE id = ?').bind(del[1]).run();
       return json({ ok: true }, cors);
     }
