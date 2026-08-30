@@ -13,6 +13,7 @@
   --text: #3d3a36;
   --text-dim: #b5b0a8;
   --placeholder: #d4cfc7;
+  --font: 'Georgia', 'Times New Roman', serif;
 }
 
 body.dark {
@@ -22,6 +23,7 @@ body.dark {
   --text: #d4d0cc;
   --text-dim: #666;
   --placeholder: #555;
+  --font: 'Georgia', serif;
 }
 
 body.sepia {
@@ -31,6 +33,57 @@ body.sepia {
   --text: #5c4b32;
   --text-dim: #a0926e;
   --placeholder: #c4b896;
+  --font: 'Georgia', serif;
+}
+
+body.moon {
+  --bg: #1b2838;
+  --surface: #22303f;
+  --border: #2e4057;
+  --text: #c8d6e5;
+  --text-dim: #576f8a;
+  --placeholder: #456;
+  --font: 'Verdana', 'Geneva', sans-serif;
+}
+
+body.forest {
+  --bg: #f0f4f0;
+  --surface: #f7faf7;
+  --border: #c5d4c0;
+  --text: #2d3b2d;
+  --text-dim: #7a9a7a;
+  --placeholder: #a8c4a8;
+  --font: 'Palatino', 'Book Antiqua', serif;
+}
+
+body.rose {
+  --bg: #fdf2f4;
+  --surface: #fff5f7;
+  --border: #f0d0d8;
+  --text: #4a2832;
+  --text-dim: #b88a98;
+  --placeholder: #d8b0bc;
+  --font: 'Georgia', serif;
+}
+
+body.minimal {
+  --bg: #fff;
+  --surface: #fff;
+  --border: #e5e5e5;
+  --text: #111;
+  --text-dim: #999;
+  --placeholder: #ccc;
+  --font: 'Arial', 'Helvetica', sans-serif;
+}
+
+body.typewriter {
+  --bg: #f5f0e8;
+  --surface: #faf7f0;
+  --border: #d4cdbf;
+  --text: #2a2520;
+  --text-dim: #8a8070;
+  --placeholder: #c0b8a8;
+  --font: 'Courier New', 'Courier', monospace;
 }
 
 body.moon {
@@ -52,7 +105,7 @@ html {
 }
 
 body {
-  font-family: 'Georgia', 'Times New Roman', serif;
+  font-family: var(--font, 'Georgia', 'Times New Roman', serif);
   background: var(--bg);
   color: var(--text);
   line-height: 1.8;

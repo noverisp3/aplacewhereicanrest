@@ -40,7 +40,7 @@ function checkAuth(){
 }
 
 // theme
-const THEMES = ['light','dark','sepia','moon'];
+const THEMES = ['light','dark','sepia','moon','forest','rose','minimal','typewriter'];
 function applyTheme(){var t=localStorage.getItem('theme')||'light';document.body.className=t;var b=document.getElementById('theme-toggle');if(b)b.textContent=t.charAt(0);document.querySelectorAll('.theme-option').forEach(function(o){o.classList.toggle('active',o.dataset.theme===t)})}
 function setTheme(t){localStorage.setItem('theme',t);applyTheme();closeMenu()}
 function toggleMenu(){document.getElementById('theme-menu').classList.toggle('open')}
