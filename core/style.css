@@ -295,6 +295,7 @@ main {
 
 .search-dates {
   flex-wrap: wrap;
+  justify-content: center;
 }
 
 .date-input {
