@@ -133,7 +133,7 @@ export default {
     // Activity heatmap
     if (path === '/api/activity' && request.method === 'GET') {
       const { results } = await env.DB.prepare(
-        "SELECT date(created_at) as day, COUNT(*) as count FROM posts GROUP BY day ORDER BY day DESC"
+        "SELECT date(created_at, '+7 hours') as day, COUNT(*) as count FROM posts GROUP BY day ORDER BY day DESC"
       ).all();
       return json({ activity: results }, cors);
     }
