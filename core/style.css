@@ -114,6 +114,15 @@ html {
   -webkit-tap-highlight-color: transparent;
 }
 
+html, body {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+html::-webkit-scrollbar, body::-webkit-scrollbar {
+  display: none;
+}
+
 body {
   font-family: var(--font, 'Georgia', 'Times New Roman', serif);
   background: var(--bg);
@@ -122,15 +131,6 @@ body {
   min-height: 100vh;
   transition: background 0.4s, color 0.4s;
   overflow-y: scroll;
-}
-
-body::-webkit-scrollbar {
-  display: none;
-}
-
-body {
-  -ms-overflow-style: none;
-  scrollbar-width: none;
 }
 
 ::selection {
