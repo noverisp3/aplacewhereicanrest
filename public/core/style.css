@@ -120,8 +120,11 @@ body {
   color: var(--text);
   line-height: 1.7;
   min-height: 100vh;
-  transition: background 0.4s, color 0.4s;
   overflow-y: scroll;
+}
+
+body.theme-ready {
+  transition: background 0.4s, color 0.4s;
 }
 
 ::selection {
