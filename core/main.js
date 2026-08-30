@@ -57,7 +57,7 @@ async function loadPosts(append) {
       counter.textContent = total + (total === 1 ? ' post' : ' posts');
     }
     const html = data.posts.map(p => {
-      const img = p.image ? '<img src="' + p.image + '" class="post-image" alt="">' : '';
+      const img = p.image ? '<img src="' + p.image + '" class="post-image" alt="" onclick="openLightbox(\'' + p.image.replace(/'/g, "\\'") + '\')" style="cursor:zoom-in">' : '';
       const txt = p.content ? '<div class="post-body">' + esc(p.content) + '</div>' : '';
       return '<div class="post post-hidden">' + txt + img + '<div class="post-footer"><span class="post-date">' + p.date + '</span><button class="post-delete" data-id="' + p.id + '">delete</button></div></div>';
     }).join('');
@@ -158,6 +158,37 @@ async function submitPost(){var c=document.getElementById('post-content').value.
 async function deletePost(i){try{await fetch(API+'/api/posts/'+i,{method:'DELETE'});nextCursor=null;await loadPosts(false)}catch(e){notify('failed to delete')}}
 
 function notify(m){var e=document.createElement('div');e.className='notification';e.textContent=m;document.body.appendChild(e);setTimeout(function(){e.remove()},2500)}
+
+// lightbox
+var lightboxSrc = '';
+function openLightbox(src) {
+  lightboxSrc = src;
+  document.getElementById('lightbox-img').src = src;
+  document.getElementById('lightbox').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+function closeLightbox(e) {
+  if (e.target === document.getElementById('lightbox') || e.target.closest('.lightbox-btn')) {
+    document.getElementById('lightbox').classList.remove('open');
+    document.body.style.overflow = '';
+    lightboxSrc = '';
+  }
+}
+function downloadLightbox(e) {
+  e.stopPropagation();
+  if (!lightboxSrc) return;
+  var a = document.createElement('a');
+  a.href = lightboxSrc;
+  a.download = 'image-' + Date.now() + '.webp';
+  a.click();
+}
+document.addEventListener('keydown', function(e) {
+  if (e.key === 'Escape' && document.getElementById('lightbox').classList.contains('open')) {
+    document.getElementById('lightbox').classList.remove('open');
+    document.body.style.overflow = '';
+    lightboxSrc = '';
+  }
+});
 
 document.addEventListener('DOMContentLoaded',function(){
   applyTheme();

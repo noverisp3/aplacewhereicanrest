@@ -58,5 +58,13 @@
   </footer>
 
   <script src="core/main.js"></script>
+
+  <div class="lightbox" id="lightbox" onclick="closeLightbox(event)">
+    <div class="lightbox-actions">
+      <button class="lightbox-btn" id="lightbox-download" onclick="downloadLightbox(event)">↓</button>
+      <button class="lightbox-btn" onclick="closeLightbox(event)">x</button>
+    </div>
+    <img class="lightbox-img" id="lightbox-img" src="" alt="">
+  </div>
 </body>
 </html>
