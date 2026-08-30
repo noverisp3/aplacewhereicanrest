@@ -143,6 +143,28 @@ header {
   color: var(--text);
 }
 
+/* activity calendar */
+
+.activity-calendar {
+  display: flex;
+  justify-content: center;
+  gap: 3px;
+  margin-top: 16px;
+  flex-wrap: wrap;
+}
+
+.cal-dot {
+  width: 5px;
+  height: 5px;
+  border-radius: 1px;
+  background: var(--border);
+  transition: background 0.3s;
+}
+
+.cal-dot.l1 { background: var(--text-dim); opacity: 0.5; }
+.cal-dot.l2 { background: var(--text-dim); opacity: 0.75; }
+.cal-dot.l3 { background: var(--text-dim); opacity: 1; }
+
 .theme-picker {
   position: absolute;
   top: 24px;
