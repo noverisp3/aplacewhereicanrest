@@ -533,6 +533,7 @@ footer {
   inset: 0;
   background: rgba(0,0,0,0);
   z-index: 99999;
+  display: flex;
   align-items: center;
   justify-content: center;
   cursor: zoom-out;
@@ -570,6 +571,7 @@ footer {
   gap: 8px;
   opacity: 0;
   transition: opacity 0.4s ease 0.15s;
+  z-index: 1;
 }
 
 .lightbox.open .lightbox-actions {
