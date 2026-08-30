@@ -12,18 +12,21 @@ open http://localhost:8080
 
 ## stack
 
-- **Frontend:** Cloudflare Pages
-- **Backend:** Cloudflare Workers
-- **Database:** Cloudflare D1
+- **Cloudflare Workers** — serve HTML + API
+- **Cloudflare D1** — database
+- **Cloudflare Assets** — static files
 
 ## deploy
 
 ```bash
-# push to github, Cloudflare Pages auto-deploys
-
-# deploy worker
 wrangler deploy
+```
 
-# init database
-wrangler d1 execute myrest --remote --command="CREATE TABLE IF NOT EXISTS posts (id TEXT PRIMARY KEY, content TEXT, image TEXT, date TEXT, created_at DATETIME DEFAULT CURRENT_TIMESTAMP)"
+## update
+
+```bash
+cp core/main.js public/core/main.js
+cp core/style.css public/core/style.css
+cp index.html public/index.html
+wrangler deploy
 ```

@@ -194,12 +194,45 @@ main {
 
 .post {
   padding: 20px 0;
-  animation: fadeIn 0.4s ease;
+  border-bottom: 1px solid var(--border);
 }
 
-@keyframes fadeIn {
-  from { opacity: 0; transform: translateY(6px); }
-  to { opacity: 1; transform: translateY(0); }
+.post:last-child {
+  border-bottom: none;
+}
+
+.post-hidden {
+  opacity: 0;
+  transform: translateY(12px);
+  transition: opacity 0.5s ease, transform 0.5s ease;
+}
+
+.post-visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* loading indicator */
+
+#scroll-sentinel {
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+#scroll-sentinel::after {
+  content: '';
+  width: 16px;
+  height: 16px;
+  border: 1.5px solid var(--border);
+  border-top-color: var(--text-dim);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
 }
 
 .post-body {
