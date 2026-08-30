@@ -96,15 +96,6 @@ body.typewriter-dark {
   --font: 'Courier New', 'Courier', monospace;
 }
 
-body.moon {
-  --bg: #1b2838;
-  --surface: #22303f;
-  --border: #2e4057;
-  --text: #c8d6e5;
-  --text-dim: #576f8a;
-  --placeholder: #456;
-}
-
 html {
   scroll-behavior: smooth;
   -webkit-tap-highlight-color: transparent;
@@ -136,19 +127,6 @@ body {
 ::selection {
   background: var(--text);
   color: var(--bg);
-}
-
-::-webkit-scrollbar {
-  width: 4px;
-}
-
-::-webkit-scrollbar-track {
-  background: transparent;
-}
-
-::-webkit-scrollbar-thumb {
-  background: var(--border);
-  border-radius: 4px;
 }
 
 /* header */
@@ -277,7 +255,7 @@ main {
 }
 
 .textarea:focus {
-  border-color: #d4cfc7;
+  border-color: var(--text-dim);
   box-shadow: 0 2px 20px rgba(0, 0, 0, 0.04);
 }
 

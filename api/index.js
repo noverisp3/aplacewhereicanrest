@@ -136,8 +136,8 @@ export default {
       const siteUrl = url.origin;
       const items = results.map(p => {
         const date = p.created_at ? new Date(p.created_at + 'Z').toUTCString() : '';
-        const desc = p.content ? '<p>' + p.content.replace(/</g, '&lt;') + '</p>' : '';
-        const img = p.image ? '<img src="' + p.image + '" style="max-width:600px">' : '';
+        const desc = p.content ? '<p>' + p.content.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;') + '</p>' : '';
+        const img = p.image ? '<img src="' + p.image.replace(/&/g, '&amp;').replace(/"/g, '&quot;') + '" style="max-width:600px">' : '';
         return `<item><title>${p.date}</title><pubDate>${date}</pubDate><guid>${siteUrl}#post-${p.id}</guid><description><![CDATA[${img}${desc}]]></description></item>`;
       }).join('');
       const rss = `<?xml version="1.0" encoding="UTF-8"?><rss version="2.0"><channel><title>a place where i can rest</title><link>${siteUrl}</link><description>my daily journal</description><language>vi</language>${items}</channel></rss>`;
