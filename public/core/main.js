@@ -217,8 +217,25 @@ async function submitPost(){
   }catch(e){notify('failed to post')}
 }
 
-async function deletePost(i){
-  if(!confirm('delete this post?'))return;
+var deleteConfirmId = null;
+function deletePost(i){
+  if(deleteConfirmId === i){
+    doDelete(i);
+    deleteConfirmId = null;
+    return;
+  }
+  deleteConfirmId = i;
+  document.querySelectorAll('.post-delete').forEach(function(b){
+    if(b.dataset.id === i){
+      b.textContent = 'delete?';
+      b.classList.add('confirm');
+    } else {
+      b.textContent = 'delete';
+      b.classList.remove('confirm');
+    }
+  });
+}
+async function doDelete(i){
   var token=getToken();
   if(!token)return;
   try{

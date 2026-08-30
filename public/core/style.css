@@ -509,6 +509,11 @@ main {
   color: var(--text);
 }
 
+.post-delete.confirm {
+  color: #a04040;
+  opacity: 1;
+}
+
 /* empty */
 
 .empty {
