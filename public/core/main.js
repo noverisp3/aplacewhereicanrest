@@ -42,13 +42,19 @@ async function loadPosts(append) {
     const res = await fetch(url);
     const data = await res.json();
     const c = document.getElementById('posts-container');
+    var counter = document.getElementById('post-count');
     if (!append) c.innerHTML = '';
     if (!data.posts.length && !append) {
       var hasFilter = params.length > 0;
       c.innerHTML = '<p class="empty">' + (hasFilter ? 'no matching posts.' : 'nothing here yet.') + '</p>';
+      if (counter) counter.textContent = '';
       loading = false;
       updateSentinel();
       return;
+    }
+    if (counter) {
+      var total = data.total;
+      counter.textContent = total + (total === 1 ? ' post' : ' posts');
     }
     const html = data.posts.map(p => {
       const img = p.image ? '<img src="' + p.image + '" class="post-image" alt="">' : '';

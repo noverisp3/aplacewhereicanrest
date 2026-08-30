@@ -335,6 +335,15 @@ main {
   color: var(--text);
 }
 
+/* post count */
+
+.post-count {
+  font-size: 0.7rem;
+  color: var(--text-dim);
+  margin-bottom: 16px;
+  letter-spacing: 0.04em;
+}
+
 /* posts */
 
 .posts {
