@@ -484,6 +484,9 @@ main {
   background: none;
   border: none;
   font-family: inherit;
+  padding: 0;
+  line-height: 1;
+  vertical-align: baseline;
   opacity: 0;
   transition: opacity 0.3s;
 }
