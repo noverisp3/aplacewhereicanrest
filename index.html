@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>a place where i can rest</title>
+  <link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
+  <link rel="stylesheet" href="core/style.css">
+</head>
+<body>
+
+  <header>
+    <h1 class="title">a place where i can rest</h1>
+    <button class="theme-toggle" id="theme-toggle" onclick="toggleTheme()"></button>
+  </header>
+
+  <main>
+    <section class="write">
+      <textarea id="post-content" placeholder="write something..." class="textarea" rows="4"></textarea>
+      <div id="preview"></div>
+      <div class="actions">
+        <input type="file" id="image-input" accept="image/*" onchange="selectImage(event)">
+        <button class="btn btn-soft" onclick="document.getElementById('image-input').click()">photo</button>
+        <button class="btn" onclick="submitPost()">post</button>
+      </div>
+    </section>
+
+    <div class="divider"></div>
+
+    <section class="posts" id="posts-container"></section>
+  </main>
+
+  <footer>
+    <p class="footer-text"><span id="current-year"></span></p>
+  </footer>
+
+  <script src="core/main.js"></script>
+</body>
+</html>

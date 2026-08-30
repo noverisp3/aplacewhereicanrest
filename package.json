@@ -1,0 +1,24 @@
+{
+  "name": "aplacewhereicanrest",
+  "version": "1.0.0",
+  "description": "a simple writing space.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/noverisp3/aplacewhereicanrest.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/noverisp3/aplacewhereicanrest/issues"
+  },
+  "homepage": "https://github.com/noverisp3/aplacewhereicanrest#readme",
+  "dependencies": {
+    "wrangler": "^4.127.1"
+  }
+}
