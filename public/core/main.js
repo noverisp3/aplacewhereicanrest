@@ -13,8 +13,9 @@ let pendingImage = null;
 async function loadPosts(append) {
   if (loading) return;
   loading = true;
+  updateSentinel();
   try {
-    let url = API + '/api/posts?limit=10';
+    let url = API + '/api/posts?limit=5';
     if (nextCursor) url += '&cursor=' + nextCursor;
     const res = await fetch(url);
     const data = await res.json();
@@ -23,6 +24,7 @@ async function loadPosts(append) {
     if (!data.posts.length && !append) {
       c.innerHTML = '<p class="empty">nothing here yet.</p>';
       loading = false;
+      updateSentinel();
       return;
     }
     const html = data.posts.map(p => {
@@ -46,6 +48,14 @@ async function loadPosts(append) {
     }
   }
   loading = false;
+  updateSentinel();
+}
+
+function updateSentinel() {
+  var s = document.getElementById('scroll-sentinel');
+  if (!s) return;
+  var hasPosts = document.querySelectorAll('.post').length > 0;
+  s.style.display = (hasPosts && (nextCursor || loading)) ? '' : 'none';
 }
 
 // intersection observer for animations
