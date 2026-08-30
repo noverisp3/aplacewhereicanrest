@@ -159,4 +159,27 @@ async function deletePost(i){try{await fetch(API+'/api/posts/'+i,{method:'DELETE
 
 function notify(m){var e=document.createElement('div');e.className='notification';e.textContent=m;document.body.appendChild(e);setTimeout(function(){e.remove()},2500)}
 
-document.addEventListener('DOMContentLoaded',function(){applyTheme();document.getElementById('current-year').textContent=new Date().getFullYear();loadPosts(false);setupInfiniteScroll()})
+document.addEventListener('DOMContentLoaded',function(){
+  applyTheme();
+  document.getElementById('current-year').textContent=new Date().getFullYear();
+  loadPosts(false);
+  setupInfiniteScroll();
+
+  var ta = document.getElementById('post-content');
+  if (ta) {
+    ta.addEventListener('keydown', function(e) {
+      if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') { e.preventDefault(); submitPost(); }
+    });
+    ta.addEventListener('dragover', function(e) { e.preventDefault(); ta.style.borderColor = 'var(--text-dim)'; });
+    ta.addEventListener('dragleave', function() { ta.style.borderColor = ''; });
+    ta.addEventListener('drop', function(e) {
+      e.preventDefault();
+      ta.style.borderColor = '';
+      var f = e.dataTransfer.files[0];
+      if (f && f.type.startsWith('image/')) {
+        notify('compressing...');
+        compressImage(f, function(data) { pendingImage = data; renderPreview(); notify('image ready') });
+      }
+    });
+  }
+})
