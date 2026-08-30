@@ -491,7 +491,7 @@ main {
 }
 
 .post-delete {
-  font-size: 0.65rem;
+  font-size: 0.7rem;
   color: var(--text-dim);
   cursor: pointer;
   background: none;
