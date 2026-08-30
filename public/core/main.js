@@ -264,15 +264,12 @@ function openLightbox(src) {
   lightboxSrc = src;
   document.getElementById('lightbox-img').src = src;
   document.getElementById('lightbox').classList.add('open');
-  var sw = window.innerWidth - document.documentElement.clientWidth;
   document.body.style.overflow = 'hidden';
-  document.body.style.paddingRight = sw + 'px';
 }
 function closeLightbox(e) {
   if (e.target === document.getElementById('lightbox') || e.target.closest('.lightbox-btn')) {
     document.getElementById('lightbox').classList.remove('open');
     document.body.style.overflow = '';
-    document.body.style.paddingRight = '';
     lightboxSrc = '';
   }
 }

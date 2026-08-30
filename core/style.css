@@ -121,6 +121,16 @@ body {
   line-height: 1.7;
   min-height: 100vh;
   transition: background 0.4s, color 0.4s;
+  overflow-y: scroll;
+}
+
+body::-webkit-scrollbar {
+  display: none;
+}
+
+body {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
 }
 
 ::selection {
