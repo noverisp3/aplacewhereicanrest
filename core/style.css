@@ -16,7 +16,7 @@
   --font: 'Georgia', 'Times New Roman', serif;
 }
 
-body.dark {
+html.dark {
   --bg: #1a1a1a;
   --surface: #242424;
   --border: #333;
@@ -26,7 +26,7 @@ body.dark {
   --font: 'Georgia', serif;
 }
 
-body.sepia {
+html.sepia {
   --bg: #f4ecd8;
   --surface: #faf6eb;
   --border: #d6c9a8;
@@ -36,7 +36,7 @@ body.sepia {
   --font: 'Georgia', serif;
 }
 
-body.moon {
+html.moon {
   --bg: #1b2838;
   --surface: #22303f;
   --border: #2e4057;
@@ -46,7 +46,7 @@ body.moon {
   --font: 'Georgia', serif;
 }
 
-body.forest {
+html.forest {
   --bg: #f0f4f0;
   --surface: #f7faf7;
   --border: #c5d4c0;
@@ -56,7 +56,7 @@ body.forest {
   --font: 'Palatino', 'Book Antiqua', serif;
 }
 
-body.rose {
+html.rose {
   --bg: #fdf2f4;
   --surface: #fff5f7;
   --border: #f0d0d8;
@@ -66,7 +66,7 @@ body.rose {
   --font: 'Georgia', serif;
 }
 
-body.minimal {
+html.minimal {
   --bg: #fff;
   --surface: #fff;
   --border: #e5e5e5;
@@ -76,7 +76,7 @@ body.minimal {
   --font: 'Arial', 'Helvetica', sans-serif;
 }
 
-body.typewriter {
+html.typewriter {
   --bg: #f5f0e8;
   --surface: #faf7f0;
   --border: #d4cdbf;
@@ -86,7 +86,7 @@ body.typewriter {
   --font: 'Courier New', 'Courier', monospace;
 }
 
-body.typewriter-dark {
+html.typewriter-dark {
   --bg: #1c1a16;
   --surface: #252320;
   --border: #3a3630;
@@ -123,7 +123,7 @@ body {
   overflow-y: scroll;
 }
 
-body.theme-ready {
+html.theme-ready {
   transition: background 0.4s, color 0.4s;
 }
 
