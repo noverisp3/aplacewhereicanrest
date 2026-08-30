@@ -603,6 +603,62 @@ footer {
   background: rgba(255,255,255,0.2);
 }
 
+/* auth screen */
+
+.auth-screen {
+  position: fixed;
+  inset: 0;
+  background: var(--bg);
+  z-index: 999999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: opacity 0.3s ease, visibility 0.3s ease;
+}
+
+.auth-screen.hidden {
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+}
+
+.auth-box {
+  text-align: center;
+  padding: 40px;
+}
+
+.auth-label {
+  font-size: 0.85rem;
+  color: var(--text-dim);
+  margin-bottom: 16px;
+  letter-spacing: 0.04em;
+}
+
+.auth-input {
+  width: 220px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 10px 14px;
+  color: var(--text);
+  font-family: inherit;
+  font-size: 0.85rem;
+  text-align: center;
+  outline: none;
+  transition: border-color 0.3s;
+}
+
+.auth-input:focus {
+  border-color: var(--text-dim);
+}
+
+.auth-error {
+  font-size: 0.72rem;
+  color: #c47a7a;
+  margin: 10px 0;
+  min-height: 1em;
+}
+
 /* responsive */
 
 @media (max-width: 600px) {

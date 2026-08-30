@@ -2,6 +2,43 @@ const API = '';
 let nextCursor = null;
 let loading = false;
 
+// auth
+function getAuth(){return localStorage.getItem('site_password')||''}
+function setAuth(p){localStorage.setItem('site_password',p)}
+function clearAuth(){localStorage.removeItem('site_password')}
+
+async function doAuth(){
+  var input=document.getElementById('auth-input');
+  var err=document.getElementById('auth-error');
+  var pw=input.value.trim();
+  if(!pw){err.textContent='please enter a password';return}
+  try{
+    var res=await fetch(API+'/api/auth',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({password:pw})});
+    var data=await res.json();
+    if(data.ok){
+      setAuth(pw);
+      document.getElementById('auth-screen').classList.add('hidden');
+      document.body.style.overflow='';
+      loadPosts(false);
+    }else{
+      err.textContent=data.error+(data.remaining!=null?' ('+data.remaining+' left)':'');
+      input.value='';
+      input.focus();
+    }
+  }catch(e){err.textContent='connection error'}
+}
+
+function checkAuth(){
+  var pw=getAuth();
+  if(!pw){
+    document.getElementById('auth-screen').classList.remove('hidden');
+    document.body.style.overflow='hidden';
+    return false;
+  }
+  document.getElementById('auth-screen').classList.add('hidden');
+  return true;
+}
+
 // theme
 const THEMES = ['light','dark','sepia','moon'];
 function applyTheme(){var t=localStorage.getItem('theme')||'light';document.body.className=t;var b=document.getElementById('theme-toggle');if(b)b.textContent=t.charAt(0);document.querySelectorAll('.theme-option').forEach(function(o){o.classList.toggle('active',o.dataset.theme===t)})}
@@ -33,13 +70,16 @@ function updateClearBtn(){var q=document.getElementById('search-input').value.tr
 // render posts
 async function loadPosts(append) {
   if (loading) return;
+  var pw = getAuth();
+  if (!pw) return;
   loading = true;
   updateSentinel();
   try {
     var params = getSearchParams();
     let url = API + '/api/posts?limit=5' + params;
     if (nextCursor) url += '&cursor=' + nextCursor;
-    const res = await fetch(url);
+    const res = await fetch(url, { headers: { 'x-site-password': pw } });
+    if (res.status === 401) { clearAuth(); checkAuth(); loading = false; return; }
     const data = await res.json();
     const c = document.getElementById('posts-container');
     var counter = document.getElementById('post-count');
@@ -153,11 +193,27 @@ function selectImage(e) {
 }
 function removePendingImage(){pendingImage=null;renderPreview()}
 
-async function submitPost(){var c=document.getElementById('post-content').value.trim();if(!c&&!pendingImage)return;try{await fetch(API+'/api/posts',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({content:c,image:pendingImage})});pendingImage=null;renderPreview();var ta=document.getElementById('post-content');ta.value='';ta.style.height='auto';nextCursor=null;await loadPosts(false);notify('posted')}catch(e){notify('failed to post')}}
+async function submitPost(){
+  var c=document.getElementById('post-content').value.trim();
+  if(!c&&!pendingImage)return;
+  var pw=getAuth();
+  if(!pw)return;
+  try{
+    await fetch(API+'/api/posts',{method:'POST',headers:{'Content-Type':'application/json','x-site-password':pw},body:JSON.stringify({content:c,image:pendingImage})});
+    pendingImage=null;renderPreview();
+    var ta=document.getElementById('post-content');ta.value='';ta.style.height='auto';
+    nextCursor=null;await loadPosts(false);notify('posted')
+  }catch(e){notify('failed to post')}
+}
 
-const DELETE_SECRET = 'rest-mi-2026';
-
-async function deletePost(i){try{await fetch(API+'/api/posts/'+i,{method:'DELETE',headers:{'x-delete-secret':DELETE_SECRET}});nextCursor=null;await loadPosts(false)}catch(e){notify('failed to delete')}}
+async function deletePost(i){
+  var pw=getAuth();
+  if(!pw)return;
+  try{
+    await fetch(API+'/api/posts/'+i,{method:'DELETE',headers:{'x-delete-secret':'rest-mi-2026','x-site-password':pw}});
+    nextCursor=null;await loadPosts(false)
+  }catch(e){notify('failed to delete')}
+}
 
 function notify(m){var e=document.createElement('div');e.className='notification';e.textContent=m;document.body.appendChild(e);setTimeout(function(){e.remove()},2500)}
 
@@ -195,7 +251,8 @@ document.addEventListener('keydown', function(e) {
 document.addEventListener('DOMContentLoaded',function(){
   applyTheme();
   document.getElementById('current-year').textContent=new Date().getFullYear();
-  loadPosts(false);
+  checkAuth();
+  if(getAuth()) loadPosts(false);
   setupInfiniteScroll();
 
   var ta = document.getElementById('post-content');

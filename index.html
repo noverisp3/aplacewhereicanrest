@@ -66,5 +66,14 @@
     </div>
     <img class="lightbox-img" id="lightbox-img" src="" alt="">
   </div>
+
+  <div class="auth-screen" id="auth-screen">
+    <div class="auth-box">
+      <p class="auth-label">enter password</p>
+      <input type="password" id="auth-input" class="auth-input" placeholder="..." onkeydown="if(event.key==='Enter')doAuth()">
+      <p class="auth-error" id="auth-error"></p>
+      <button class="btn" onclick="doAuth()">enter</button>
+    </div>
+  </div>
 </body>
 </html>

@@ -1,17 +1,51 @@
-const HTML = '<!DOCTYPE html><html lang="vi"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>a place where i can rest</title><link rel="icon" type="image/svg+xml" href="/assets/favicon.svg"><link rel="stylesheet" href="/core/style.css"></head><body><header><h1 class="title">a place where i can rest</h1><div class="theme-picker"><button class="theme-toggle" id="theme-toggle" onclick="toggleMenu()"></button><div class="theme-menu" id="theme-menu"><div class="theme-option" data-theme="light" onclick="setTheme(\'light\')"><span class="theme-dot" style="background:#f9f8f6"></span>light</div><div class="theme-option" data-theme="dark" onclick="setTheme(\'dark\')"><span class="theme-dot" style="background:#1a1a1a"></span>dark</div><div class="theme-option" data-theme="sepia" onclick="setTheme(\'sepia\')"><span class="theme-dot" style="background:#f4ecd8"></span>sepia</div><div class="theme-option" data-theme="moon" onclick="setTheme(\'moon\')"><span class="theme-dot" style="background:#1b2838"></span>moon</div></div></div></header><main><section class="write"><textarea id="post-content" placeholder="write something..." class="textarea" rows="4"></textarea><div id="preview"></div><div class="actions"><input type="file" id="image-input" accept="image/*" onchange="selectImage(event)"><button class="btn btn-soft" onclick="document.getElementById(\'image-input\').click()">photo</button><button class="btn" onclick="submitPost()">post</button></div></section><div class="divider"></div><section class="search"><div class="search-row"><input type="text" id="search-input" class="search-input" placeholder="search posts..." oninput="debounceSearch()"></div><div class="search-row search-dates"><input type="date" id="date-from" class="date-input" onchange="searchPosts()"><span class="date-sep">—</span><input type="date" id="date-to" class="date-input" onchange="searchPosts()"><button class="btn-clear" id="clear-search" onclick="clearSearch()" style="display:none">clear</button></div></section><div class="post-count" id="post-count"></div><section class="posts" id="posts-container"></section><div id="scroll-sentinel"></div></main><footer><p class="footer-text"><span id="current-year"></span></p></footer><script src="/core/main.js"></script><div class="lightbox" id="lightbox" onclick="closeLightbox(event)"><div class="lightbox-actions"><button class="lightbox-btn" id="lightbox-download" onclick="downloadLightbox(event)">↓</button><button class="lightbox-btn" onclick="closeLightbox(event)">x</button></div><img class="lightbox-img" id="lightbox-img" src="" alt=""></div></body></html>';
+const HTML = '<!DOCTYPE html><html lang="vi"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>a place where i can rest</title><link rel="icon" type="image/svg+xml" href="/assets/favicon.svg"><link rel="stylesheet" href="/core/style.css"></head><body><header><h1 class="title">a place where i can rest</h1><div class="theme-picker"><button class="theme-toggle" id="theme-toggle" onclick="toggleMenu()"></button><div class="theme-menu" id="theme-menu"><div class="theme-option" data-theme="light" onclick="setTheme(\'light\')"><span class="theme-dot" style="background:#f9f8f6"></span>light</div><div class="theme-option" data-theme="dark" onclick="setTheme(\'dark\')"><span class="theme-dot" style="background:#1a1a1a"></span>dark</div><div class="theme-option" data-theme="sepia" onclick="setTheme(\'sepia\')"><span class="theme-dot" style="background:#f4ecd8"></span>sepia</div><div class="theme-option" data-theme="moon" onclick="setTheme(\'moon\')"><span class="theme-dot" style="background:#1b2838"></span>moon</div></div></div></header><main><section class="write"><textarea id="post-content" placeholder="write something..." class="textarea" rows="4"></textarea><div id="preview"></div><div class="actions"><input type="file" id="image-input" accept="image/*" onchange="selectImage(event)"><button class="btn btn-soft" onclick="document.getElementById(\'image-input\').click()">photo</button><button class="btn" onclick="submitPost()">post</button></div></section><div class="divider"></div><section class="search"><div class="search-row"><input type="text" id="search-input" class="search-input" placeholder="search posts..." oninput="debounceSearch()"></div><div class="search-row search-dates"><input type="date" id="date-from" class="date-input" onchange="searchPosts()"><span class="date-sep">—</span><input type="date" id="date-to" class="date-input" onchange="searchPosts()"><button class="btn-clear" id="clear-search" onclick="clearSearch()" style="display:none">clear</button></div></section><div class="post-count" id="post-count"></div><section class="posts" id="posts-container"></section><div id="scroll-sentinel"></div></main><footer><p class="footer-text"><span id="current-year"></span></p></footer><script src="/core/main.js"></script><div class="auth-screen" id="auth-screen"><div class="auth-box"><p class="auth-label">enter password</p><input type="password" id="auth-input" class="auth-input" placeholder="..." onkeydown="if(event.key===\'Enter\')doAuth()"><p class="auth-error" id="auth-error"></p><button class="btn" onclick="doAuth()">enter</button></div></div></body></html>';
 
 export default {
   async fetch(request, env) {
     const url = new URL(request.url);
     const path = url.pathname;
+    const ip = request.headers.get('cf-connecting-ip') || 'unknown';
 
     const cors = {
       'Access-Control-Allow-Origin': '*',
       'Access-Control-Allow-Methods': 'GET, POST, DELETE, OPTIONS',
-      'Access-Control-Allow-Headers': 'Content-Type, x-delete-secret',
+      'Access-Control-Allow-Headers': 'Content-Type, x-site-password, x-delete-secret',
     };
 
     if (request.method === 'OPTIONS') return new Response(null, { headers: cors });
+
+    // Auth endpoint
+    if (path === '/api/auth' && request.method === 'POST') {
+      const body = await request.json();
+      const pw = body.password || '';
+
+      // Check rate limit
+      const attempts = await env.DB.prepare(
+        'SELECT COUNT(*) as cnt FROM failed_attempts WHERE ip = ? AND attempted_at > datetime(\'now\', \'-5 minutes\')'
+      ).bind(ip).all();
+      const count = attempts.results[0]?.cnt || 0;
+      if (count >= 3) {
+        return json({ error: 'too many attempts, try again in 5 minutes' }, cors, 429);
+      }
+
+      if (pw !== env.SITE_PASSWORD) {
+        await env.DB.prepare('INSERT INTO failed_attempts (ip) VALUES (?)').bind(ip).run();
+        const remaining = 3 - count - 1;
+        return json({ error: 'wrong password', remaining }, cors, 401);
+      }
+
+      // Clear failed attempts on success
+      await env.DB.prepare('DELETE FROM failed_attempts WHERE ip = ?').bind(ip).run();
+      return json({ ok: true }, cors);
+    }
+
+    // Check password on all other API routes
+    if (path.startsWith('/api/')) {
+      const pw = request.headers.get('x-site-password') || '';
+      if (pw !== env.SITE_PASSWORD) {
+        return json({ error: 'unauthorized' }, cors, 401);
+      }
+    }
 
     // API routes
     if (path === '/api/posts' && request.method === 'GET') {
@@ -24,31 +58,16 @@ export default {
       let where = [];
       let params = [];
 
-      if (q) {
-        where.push('content LIKE ?');
-        params.push('%' + q + '%');
-      }
-      if (from) {
-        where.push('created_at >= ?');
-        params.push(from);
-      }
-      if (to) {
-        where.push('created_at <= ?');
-        params.push(to + 'T23:59:59');
-      }
-      if (cursor) {
-        where.push('created_at < (SELECT created_at FROM posts WHERE id = ?)');
-        params.push(cursor);
-      }
+      if (q) { where.push('content LIKE ?'); params.push('%' + q + '%'); }
+      if (from) { where.push('created_at >= ?'); params.push(from); }
+      if (to) { where.push('created_at <= ?'); params.push(to + 'T23:59:59'); }
+      if (cursor) { where.push('created_at < (SELECT created_at FROM posts WHERE id = ?)'); params.push(cursor); }
 
       const clause = where.length ? 'WHERE ' + where.join(' AND ') : '';
       const allParams = [...params, limit + 1];
-      const stmt = 'SELECT * FROM posts ' + clause + ' ORDER BY created_at DESC LIMIT ?';
-      const results = await env.DB.prepare(stmt).bind(...allParams).all();
+      const results = await env.DB.prepare('SELECT * FROM posts ' + clause + ' ORDER BY created_at DESC LIMIT ?').bind(...allParams).all();
 
-      const countParams = params.slice();
-      const countStmt = 'SELECT COUNT(*) as total FROM posts ' + clause;
-      const countResult = await env.DB.prepare(countStmt).bind(...countParams).all();
+      const countResult = await env.DB.prepare('SELECT COUNT(*) as total FROM posts ' + clause).bind(...params).all();
       const total = countResult.results[0]?.total || 0;
 
       const hasMore = results.results.length > limit;
@@ -68,7 +87,7 @@ export default {
     if (del && request.method === 'DELETE') {
       const secret = request.headers.get('x-delete-secret');
       if (secret !== env.DELETE_SECRET) {
-        return json({ error: 'unauthorized' }, cors, 401);
+        return json({ error: 'forbidden' }, cors, 403);
       }
       await env.DB.prepare('DELETE FROM posts WHERE id = ?').bind(del[1]).run();
       return json({ ok: true }, cors);
