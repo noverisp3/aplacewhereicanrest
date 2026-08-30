@@ -161,12 +161,13 @@ header {
   height: 5px;
   border-radius: 1px;
   background: var(--border);
-  transition: background 0.3s;
+  opacity: 0.4;
+  transition: background 0.3s, opacity 0.3s;
 }
 
-.cal-dot.l1 { background: var(--text-dim); opacity: 0.5; }
-.cal-dot.l2 { background: var(--text-dim); opacity: 0.75; }
-.cal-dot.l3 { background: var(--text-dim); opacity: 1; }
+.cal-dot.l1 { background: var(--text-dim); opacity: 0.35; }
+.cal-dot.l2 { background: var(--text-dim); opacity: 0.65; }
+.cal-dot.l3 { background: var(--text); opacity: 0.85; }
 
 .theme-picker {
   position: absolute;
