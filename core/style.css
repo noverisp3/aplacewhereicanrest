@@ -212,6 +212,15 @@ main {
   color: var(--placeholder);
 }
 
+.char-count {
+  font-size: 0.65rem;
+  color: var(--text-dim);
+  text-align: right;
+  margin-top: 4px;
+  min-height: 1em;
+  opacity: 0.6;
+}
+
 .actions {
   display: flex;
   justify-content: flex-end;

@@ -212,6 +212,8 @@ async function submitPost(){
     if(res.status===401){handleAuthFail();return}
     pendingImage=null;renderPreview();
     var ta=document.getElementById('post-content');ta.value='';ta.style.height='auto';
+    localStorage.removeItem('draft_text');
+    var cc=document.getElementById('char-count');if(cc)cc.textContent='';
     nextCursor=null;await loadPosts(false);notify('posted')
   }catch(e){notify('failed to post')}
 }
@@ -269,10 +271,22 @@ document.addEventListener('DOMContentLoaded',function(){
   setupInfiniteScroll();
 
   var ta = document.getElementById('post-content');
+  var cc = document.getElementById('char-count');
   if (ta) {
+    // Load draft
+    var draft = localStorage.getItem('draft_text');
+    if (draft) { ta.value = draft; ta.style.height = 'auto'; ta.style.height = ta.scrollHeight + 'px'; }
+    if (cc && draft) cc.textContent = draft.length + ' ký tự';
+
     ta.addEventListener('input', function() {
       this.style.height = 'auto';
       this.style.height = this.scrollHeight + 'px';
+      // Char count
+      var len = this.value.length;
+      if (cc) cc.textContent = len > 0 ? len + ' ký tự' : '';
+      // Auto-save draft
+      if (len > 0) { localStorage.setItem('draft_text', this.value); }
+      else { localStorage.removeItem('draft_text'); }
     });
     ta.addEventListener('keydown', function(e) {
       if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') { e.preventDefault(); submitPost(); }
