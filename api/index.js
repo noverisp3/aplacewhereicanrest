@@ -1,20 +1,50 @@
 const HTML = '<!DOCTYPE html><html lang="vi"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>a place where i can rest</title><link rel="icon" type="image/svg+xml" href="/assets/favicon.svg"><link rel="stylesheet" href="/core/style.css"></head><body><header><h1 class="title">a place where i can rest</h1><div class="theme-picker"><button class="theme-toggle" id="theme-toggle" onclick="toggleMenu()"></button><div class="theme-menu" id="theme-menu"><div class="theme-option" data-theme="light" onclick="setTheme(\'light\')"><span class="theme-dot" style="background:#f9f8f6"></span>light</div><div class="theme-option" data-theme="dark" onclick="setTheme(\'dark\')"><span class="theme-dot" style="background:#1a1a1a"></span>dark</div><div class="theme-option" data-theme="sepia" onclick="setTheme(\'sepia\')"><span class="theme-dot" style="background:#f4ecd8"></span>sepia</div><div class="theme-option" data-theme="moon" onclick="setTheme(\'moon\')"><span class="theme-dot" style="background:#1b2838"></span>moon</div></div></div></header><main><section class="write"><textarea id="post-content" placeholder="write something..." class="textarea" rows="4"></textarea><div id="preview"></div><div class="actions"><input type="file" id="image-input" accept="image/*" onchange="selectImage(event)"><button class="btn btn-soft" onclick="document.getElementById(\'image-input\').click()">photo</button><button class="btn" onclick="submitPost()">post</button></div></section><div class="divider"></div><section class="search"><div class="search-row"><input type="text" id="search-input" class="search-input" placeholder="search posts..." oninput="debounceSearch()"></div><div class="search-row search-dates"><input type="date" id="date-from" class="date-input" onchange="searchPosts()"><span class="date-sep">—</span><input type="date" id="date-to" class="date-input" onchange="searchPosts()"><button class="btn-clear" id="clear-search" onclick="clearSearch()" style="display:none">clear</button></div></section><div class="post-count" id="post-count"></div><section class="posts" id="posts-container"></section><div id="scroll-sentinel"></div></main><footer><p class="footer-text"><span id="current-year"></span></p></footer><script src="/core/main.js"></script><div class="auth-screen" id="auth-screen"><div class="auth-box"><p class="auth-label">enter password</p><input type="password" id="auth-input" class="auth-input" placeholder="..." onkeydown="if(event.key===\'Enter\')doAuth()"><p class="auth-error" id="auth-error"></p><button class="btn" onclick="doAuth()">enter</button></div></div></body></html>';
 
+const TOKEN_TTL = 7 * 24 * 60 * 60 * 1000; // 7 days
+
+async function hmacSign(msg, secret) {
+  const key = await crypto.subtle.importKey(
+    'raw', new TextEncoder().encode(secret),
+    { name: 'HMAC', hash: 'SHA-256' }, false, ['sign']
+  );
+  const sig = await crypto.subtle.sign('HMAC', key, new TextEncoder().encode(msg));
+  return Array.from(new Uint8Array(sig)).map(b => b.toString(16).padStart(2, '0')).join('');
+}
+
+async function verifyToken(token, secret) {
+  const sep = token.lastIndexOf('.');
+  if (sep === -1) return false;
+  const ts = token.substring(0, sep);
+  const sig = token.substring(sep + 1);
+  const expected = await hmacSign(ts, secret);
+  if (sig !== expected) return false;
+  const age = Date.now() - parseInt(ts);
+  return age >= 0 && age < TOKEN_TTL;
+}
+
+function json(data, headers, status) {
+  return new Response(JSON.stringify(data), {
+    status: status || 200,
+    headers: { ...headers, 'Content-Type': 'application/json' }
+  });
+}
+
 export default {
   async fetch(request, env) {
     const url = new URL(request.url);
     const path = url.pathname;
     const ip = request.headers.get('cf-connecting-ip') || 'unknown';
+    const secret = env.SITE_PASSWORD;
 
     const cors = {
       'Access-Control-Allow-Origin': '*',
       'Access-Control-Allow-Methods': 'GET, POST, DELETE, OPTIONS',
-      'Access-Control-Allow-Headers': 'Content-Type, x-site-password, x-delete-secret',
+      'Access-Control-Allow-Headers': 'Content-Type, Authorization, x-delete-secret',
     };
 
     if (request.method === 'OPTIONS') return new Response(null, { headers: cors });
 
-    // Auth endpoint
+    // Login endpoint
     if (path === '/api/auth' && request.method === 'POST') {
       const body = await request.json();
       const pw = body.password || '';
@@ -28,7 +58,7 @@ export default {
         return json({ error: 'too many attempts, try again in 5 minutes' }, cors, 429);
       }
 
-      if (pw !== env.SITE_PASSWORD) {
+      if (pw !== secret) {
         await env.DB.prepare('INSERT INTO failed_attempts (ip) VALUES (?)').bind(ip).run();
         const remaining = 3 - count - 1;
         return json({ error: 'wrong password', remaining }, cors, 401);
@@ -36,13 +66,20 @@ export default {
 
       // Clear failed attempts on success
       await env.DB.prepare('DELETE FROM failed_attempts WHERE ip = ?').bind(ip).run();
-      return json({ ok: true }, cors);
+
+      // Generate token: timestamp.signature
+      const ts = Date.now().toString();
+      const sig = await hmacSign(ts, secret);
+      const token = ts + '.' + sig;
+
+      return json({ ok: true, token }, cors);
     }
 
-    // Check password on all other API routes
+    // Verify token on all other API routes
     if (path.startsWith('/api/')) {
-      const pw = request.headers.get('x-site-password') || '';
-      if (pw !== env.SITE_PASSWORD) {
+      const auth = request.headers.get('authorization') || '';
+      const token = auth.replace('Bearer ', '');
+      if (!token || !(await verifyToken(token, secret))) {
         return json({ error: 'unauthorized' }, cors, 401);
       }
     }
@@ -85,8 +122,8 @@ export default {
 
     const del = path.match(/^\/api\/posts\/(.+)$/);
     if (del && request.method === 'DELETE') {
-      const secret = request.headers.get('x-delete-secret');
-      if (secret !== env.DELETE_SECRET) {
+      const secret2 = request.headers.get('x-delete-secret');
+      if (secret2 !== env.DELETE_SECRET) {
         return json({ error: 'forbidden' }, cors, 403);
       }
       await env.DB.prepare('DELETE FROM posts WHERE id = ?').bind(del[1]).run();
@@ -116,10 +153,3 @@ export default {
     return new Response('Not Found', { status: 404 });
   }
 };
-
-function json(data, headers, status) {
-  return new Response(JSON.stringify(data), {
-    status: status || 200,
-    headers: { ...headers, 'Content-Type': 'application/json' }
-  });
-}

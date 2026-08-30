@@ -2,10 +2,10 @@ const API = '';
 let nextCursor = null;
 let loading = false;
 
-// auth
-function getAuth(){return localStorage.getItem('site_password')||''}
-function setAuth(p){localStorage.setItem('site_password',p)}
-function clearAuth(){localStorage.removeItem('site_password')}
+// auth - token based
+function getToken(){return localStorage.getItem('auth_token')||''}
+function setToken(t){localStorage.setItem('auth_token',t)}
+function clearToken(){localStorage.removeItem('auth_token')}
 
 async function doAuth(){
   var input=document.getElementById('auth-input');
@@ -16,7 +16,7 @@ async function doAuth(){
     var res=await fetch(API+'/api/auth',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({password:pw})});
     var data=await res.json();
     if(data.ok){
-      setAuth(pw);
+      setToken(data.token);
       document.getElementById('auth-screen').classList.add('hidden');
       document.body.style.overflow='';
       loadPosts(false);
@@ -29,8 +29,8 @@ async function doAuth(){
 }
 
 function checkAuth(){
-  var pw=getAuth();
-  if(!pw){
+  var token=getToken();
+  if(!token){
     document.getElementById('auth-screen').classList.remove('hidden');
     document.body.style.overflow='hidden';
     return false;
@@ -67,19 +67,28 @@ function searchPosts(){nextCursor=null;loadPosts(false);updateClearBtn()}
 function clearSearch(){document.getElementById('search-input').value='';document.getElementById('date-from').value='';document.getElementById('date-to').value='';searchPosts()}
 function updateClearBtn(){var q=document.getElementById('search-input').value.trim();var f=document.getElementById('date-from').value;var t=document.getElementById('date-to').value;var b=document.getElementById('clear-search');if(b)b.style.display=(q||f||t)?'':'none'}
 
+function authHeaders(){
+  var h={'Content-Type':'application/json'};
+  var t=getToken();
+  if(t)h['Authorization']='Bearer '+t;
+  return h;
+}
+
+function handleAuthFail(){clearToken();checkAuth()}
+
 // render posts
 async function loadPosts(append) {
   if (loading) return;
-  var pw = getAuth();
-  if (!pw) return;
+  var token = getToken();
+  if (!token) return;
   loading = true;
   updateSentinel();
   try {
     var params = getSearchParams();
     let url = API + '/api/posts?limit=5' + params;
     if (nextCursor) url += '&cursor=' + nextCursor;
-    const res = await fetch(url, { headers: { 'x-site-password': pw } });
-    if (res.status === 401) { clearAuth(); checkAuth(); loading = false; return; }
+    const res = await fetch(url, { headers: authHeaders() });
+    if (res.status === 401) { handleAuthFail(); loading = false; return; }
     const data = await res.json();
     const c = document.getElementById('posts-container');
     var counter = document.getElementById('post-count');
@@ -196,10 +205,11 @@ function removePendingImage(){pendingImage=null;renderPreview()}
 async function submitPost(){
   var c=document.getElementById('post-content').value.trim();
   if(!c&&!pendingImage)return;
-  var pw=getAuth();
-  if(!pw)return;
+  var token=getToken();
+  if(!token)return;
   try{
-    await fetch(API+'/api/posts',{method:'POST',headers:{'Content-Type':'application/json','x-site-password':pw},body:JSON.stringify({content:c,image:pendingImage})});
+    var res=await fetch(API+'/api/posts',{method:'POST',headers:authHeaders(),body:JSON.stringify({content:c,image:pendingImage})});
+    if(res.status===401){handleAuthFail();return}
     pendingImage=null;renderPreview();
     var ta=document.getElementById('post-content');ta.value='';ta.style.height='auto';
     nextCursor=null;await loadPosts(false);notify('posted')
@@ -207,10 +217,13 @@ async function submitPost(){
 }
 
 async function deletePost(i){
-  var pw=getAuth();
-  if(!pw)return;
+  var token=getToken();
+  if(!token)return;
   try{
-    await fetch(API+'/api/posts/'+i,{method:'DELETE',headers:{'x-delete-secret':'rest-mi-2026','x-site-password':pw}});
+    var h=authHeaders();
+    h['x-delete-secret']='rest-mi-2026';
+    var res=await fetch(API+'/api/posts/'+i,{method:'DELETE',headers:h});
+    if(res.status===401){handleAuthFail();return}
     nextCursor=null;await loadPosts(false)
   }catch(e){notify('failed to delete')}
 }
@@ -252,7 +265,7 @@ document.addEventListener('DOMContentLoaded',function(){
   applyTheme();
   document.getElementById('current-year').textContent=new Date().getFullYear();
   checkAuth();
-  if(getAuth()) loadPosts(false);
+  if(getToken()) loadPosts(false);
   setupInfiniteScroll();
 
   var ta = document.getElementById('post-content');
