@@ -43,7 +43,7 @@ body.moon {
   --text: #c8d6e5;
   --text-dim: #576f8a;
   --placeholder: #456;
-  --font: 'Verdana', 'Geneva', sans-serif;
+  --font: 'Georgia', serif;
 }
 
 body.forest {
@@ -83,6 +83,16 @@ body.typewriter {
   --text: #2a2520;
   --text-dim: #8a8070;
   --placeholder: #c0b8a8;
+  --font: 'Courier New', 'Courier', monospace;
+}
+
+body.typewriter-dark {
+  --bg: #1c1a16;
+  --surface: #252320;
+  --border: #3a3630;
+  --text: #d4ccc0;
+  --text-dim: #706858;
+  --placeholder: #504840;
   --font: 'Courier New', 'Courier', monospace;
 }
 
