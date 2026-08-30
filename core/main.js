@@ -511,7 +511,7 @@ function loadActivity() {
       (data.activity || []).forEach(function(a) { map[a.day] = a.count });
       var today = new Date();
       var html = '';
-      for (var i = 89; i >= 0; i--) {
+      for (var i = 59; i >= 0; i--) {
         var d = new Date(today);
         d.setDate(d.getDate() - i);
         var key = d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
