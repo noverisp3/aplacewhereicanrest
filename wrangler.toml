@@ -3,9 +3,6 @@ main = "api/index.js"
 compatibility_date = "2024-01-01"
 assets = { directory = "public", binding = "ASSETS" }
 
-[vars]
-DELETE_SECRET = "rest-mi-2026"
-
 d1_databases = [
   { binding = "DB", database_name = "myrest", database_id = "1f326b9e-233e-41f4-bba2-8e044a2d3068" }
 ]
