@@ -59,7 +59,7 @@ async function loadPosts(append) {
     const html = data.posts.map(p => {
       const img = p.image ? '<img src="' + p.image + '" class="post-image" alt="">' : '';
       const txt = p.content ? '<div class="post-body">' + esc(p.content) + '</div>' : '';
-      return '<div class="post post-hidden">' + img + txt + '<div class="post-footer"><span class="post-date">' + p.date + '</span><button class="post-delete" data-id="' + p.id + '">delete</button></div></div>';
+      return '<div class="post post-hidden">' + txt + img + '<div class="post-footer"><span class="post-date">' + p.date + '</span><button class="post-delete" data-id="' + p.id + '">delete</button></div></div>';
     }).join('');
     if (append) {
       c.insertAdjacentHTML('beforeend', html);
