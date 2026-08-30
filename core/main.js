@@ -101,7 +101,7 @@ async function loadPosts(append) {
       updateSentinel();
       return;
     }
-    if (counter) {
+    if (!append && counter) {
       var total = data.total;
       counter.textContent = total + (total === 1 ? ' post' : ' posts');
     }
