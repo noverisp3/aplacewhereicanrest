@@ -166,8 +166,9 @@ header {
 }
 
 .cal-dot.l1 { background: var(--text-dim); opacity: 0.35; }
-.cal-dot.l2 { background: var(--text-dim); opacity: 0.65; }
-.cal-dot.l3 { background: var(--text); opacity: 0.85; }
+.cal-dot.l2 { background: var(--text-dim); opacity: 0.55; }
+.cal-dot.l3 { background: var(--text-dim); opacity: 0.75; }
+.cal-dot.l4 { background: var(--text); opacity: 0.9; }
 
 .theme-picker {
   position: absolute;

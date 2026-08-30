@@ -520,7 +520,7 @@ function loadActivity() {
         d.setDate(d.getDate() - i);
         var key = d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
         var c = map[key] || 0;
-        var lvl = c === 0 ? '' : c === 1 ? 'l1' : c === 2 ? 'l2' : 'l3';
+        var lvl = c === 0 ? '' : c < 5 ? 'l1' : c < 10 ? 'l2' : c < 15 ? 'l3' : 'l4';
         var title = key + (c ? ' (' + c + ' post' + (c > 1 ? 's' : '') + ')' : '');
         html += '<div class="cal-dot ' + lvl + '" title="' + title + '"></div>';
       }
