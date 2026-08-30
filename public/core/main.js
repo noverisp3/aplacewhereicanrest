@@ -289,4 +289,12 @@ document.addEventListener('DOMContentLoaded',function(){
       }
     });
   }
+
+  document.addEventListener('keydown', function(e) {
+    if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
+      e.preventDefault();
+      var si = document.getElementById('search-input');
+      if (si) si.focus();
+    }
+  });
 })
