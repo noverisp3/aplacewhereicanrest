@@ -3,8 +3,12 @@ let nextCursor = null;
 let loading = false;
 
 // theme
-function applyTheme(){const d=localStorage.getItem('theme')==='dark';document.body.classList.toggle('dark',d);const b=document.getElementById('theme-toggle');if(b)b.textContent=d?'o':'x'}
-function toggleTheme(){const d=document.body.classList.toggle('dark');localStorage.setItem('theme',d?'dark':'light');const b=document.getElementById('theme-toggle');if(b)b.textContent=d?'o':'x'}
+const THEMES = ['light','dark','sepia','moon'];
+function applyTheme(){var t=localStorage.getItem('theme')||'light';document.body.className=t;var b=document.getElementById('theme-toggle');if(b)b.textContent=t.charAt(0);document.querySelectorAll('.theme-option').forEach(function(o){o.classList.toggle('active',o.dataset.theme===t)})}
+function setTheme(t){localStorage.setItem('theme',t);applyTheme();closeMenu()}
+function toggleMenu(){document.getElementById('theme-menu').classList.toggle('open')}
+function closeMenu(){document.getElementById('theme-menu').classList.remove('open')}
+document.addEventListener('click',function(e){if(!e.target.closest('.theme-picker'))closeMenu()});
 
 // pending image
 let pendingImage = null;
