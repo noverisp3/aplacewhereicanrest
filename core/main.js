@@ -13,20 +13,39 @@ document.addEventListener('click',function(e){if(!e.target.closest('.theme-picke
 // pending image
 let pendingImage = null;
 
+// search
+let searchTimer = null;
+function getSearchParams(){
+  var q=document.getElementById('search-input').value.trim();
+  var f=document.getElementById('date-from').value;
+  var t=document.getElementById('date-to').value;
+  var s=[];
+  if(q)s.push('q='+encodeURIComponent(q));
+  if(f)s.push('from='+f);
+  if(t)s.push('to='+t);
+  return s.length?'&'+s.join('&'):'';
+}
+function debounceSearch(){clearTimeout(searchTimer);searchTimer=setTimeout(searchPosts,300)}
+function searchPosts(){nextCursor=null;loadPosts(false);updateClearBtn()}
+function clearSearch(){document.getElementById('search-input').value='';document.getElementById('date-from').value='';document.getElementById('date-to').value='';searchPosts()}
+function updateClearBtn(){var q=document.getElementById('search-input').value.trim();var f=document.getElementById('date-from').value;var t=document.getElementById('date-to').value;var b=document.getElementById('clear-search');if(b)b.style.display=(q||f||t)?'':'none'}
+
 // render posts
 async function loadPosts(append) {
   if (loading) return;
   loading = true;
   updateSentinel();
   try {
-    let url = API + '/api/posts?limit=5';
+    var params = getSearchParams();
+    let url = API + '/api/posts?limit=5' + params;
     if (nextCursor) url += '&cursor=' + nextCursor;
     const res = await fetch(url);
     const data = await res.json();
     const c = document.getElementById('posts-container');
     if (!append) c.innerHTML = '';
     if (!data.posts.length && !append) {
-      c.innerHTML = '<p class="empty">nothing here yet.</p>';
+      var hasFilter = params.length > 0;
+      c.innerHTML = '<p class="empty">' + (hasFilter ? 'no matching posts.' : 'nothing here yet.') + '</p>';
       loading = false;
       updateSentinel();
       return;

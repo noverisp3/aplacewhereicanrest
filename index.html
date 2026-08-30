@@ -35,6 +35,18 @@
 
     <div class="divider"></div>
 
+    <section class="search">
+      <div class="search-row">
+        <input type="text" id="search-input" class="search-input" placeholder="search posts..." oninput="debounceSearch()">
+      </div>
+      <div class="search-row search-dates">
+        <input type="date" id="date-from" class="date-input" onchange="searchPosts()">
+        <span class="date-sep">—</span>
+        <input type="date" id="date-to" class="date-input" onchange="searchPosts()">
+        <button class="btn-clear" id="clear-search" onclick="clearSearch()" style="display:none">clear</button>
+      </div>
+    </section>
+
     <section class="posts" id="posts-container"></section>
     <div id="scroll-sentinel"></div>
   </main>
