@@ -82,6 +82,10 @@ async function loadPosts(append) {
   var token = getToken();
   if (!token) return;
   loading = true;
+  var c = document.getElementById('posts-container');
+  if (!append && !c.querySelector('.post')) {
+    c.innerHTML = '<div class="skeleton"><div class="skel-line w80"></div><div class="skel-line w60"></div><div class="skel-img"></div><div class="skel-footer"><div class="skel-dot"></div></div></div><div class="skeleton"><div class="skel-line w80"></div><div class="skel-line w40"></div><div class="skel-footer"><div class="skel-dot"></div></div></div><div class="skeleton"><div class="skel-line w60"></div><div class="skel-line w80"></div><div class="skel-img"></div><div class="skel-footer"><div class="skel-dot"></div></div></div>';
+  }
   updateSentinel();
   try {
     var params = getSearchParams();
