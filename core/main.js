@@ -153,7 +153,7 @@ function selectImage(e) {
 }
 function removePendingImage(){pendingImage=null;renderPreview()}
 
-async function submitPost(){var c=document.getElementById('post-content').value.trim();if(!c&&!pendingImage)return;try{await fetch(API+'/api/posts',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({content:c,image:pendingImage})});pendingImage=null;renderPreview();document.getElementById('post-content').value='';nextCursor=null;await loadPosts(false);notify('posted')}catch(e){notify('failed to post')}}
+async function submitPost(){var c=document.getElementById('post-content').value.trim();if(!c&&!pendingImage)return;try{await fetch(API+'/api/posts',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({content:c,image:pendingImage})});pendingImage=null;renderPreview();var ta=document.getElementById('post-content');ta.value='';ta.style.height='auto';nextCursor=null;await loadPosts(false);notify('posted')}catch(e){notify('failed to post')}}
 
 const DELETE_SECRET = 'rest-mi-2026';
 
@@ -200,6 +200,10 @@ document.addEventListener('DOMContentLoaded',function(){
 
   var ta = document.getElementById('post-content');
   if (ta) {
+    ta.addEventListener('input', function() {
+      this.style.height = 'auto';
+      this.style.height = this.scrollHeight + 'px';
+    });
     ta.addEventListener('keydown', function(e) {
       if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') { e.preventDefault(); submitPost(); }
     });
