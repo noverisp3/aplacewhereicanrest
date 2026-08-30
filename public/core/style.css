@@ -118,10 +118,10 @@ body {
   font-family: var(--font, 'Georgia', 'Times New Roman', serif);
   background: var(--bg);
   color: var(--text);
-  line-height: 1.8;
-  font-size: 15px;
+  line-height: 1.7;
   min-height: 100vh;
-  -webkit-font-smoothing: antialiased;
+  transition: background 0.4s, color 0.4s;
+  scrollbar-gutter: stable;
 }
 
 ::selection {
