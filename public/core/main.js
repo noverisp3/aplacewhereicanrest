@@ -323,7 +323,6 @@ document.addEventListener('wheel', function(e) {
 document.addEventListener('mousedown', function(e) {
   if (!document.getElementById('lightbox').classList.contains('open')) return;
   if (e.target !== document.getElementById('lightbox-img')) return;
-  if (lbScale <= 1) return;
   lbDragging = true;
   lbLastX = e.clientX;
   lbLastY = e.clientY;
@@ -370,25 +369,22 @@ document.addEventListener('touchstart', function(e) {
 
   // Single finger
   if (e.touches.length === 1 && e.target === img) {
-    if (lbScale > 1) {
-      // Pan
+    var now = Date.now();
+    if (lbTapTimer && now - lbTapTimer < 300) {
       e.preventDefault();
-      lbDragging = true;
-      lbLastX = e.touches[0].clientX;
-      lbLastY = e.touches[0].clientY;
+      lbScale = lbScale > 1 ? 1 : 2;
+      img.style.transition = 'transform 0.25s ease';
+      lbTransform();
+      setTimeout(function() { img.style.transition = ''; }, 250);
+      lbTapTimer = null;
     } else {
-      // Detect double-tap
-      var now = Date.now();
-      if (lbTapTimer && now - lbTapTimer < 300) {
-        // Double tap → zoom to 2x
+      lbTapTimer = now;
+      // Pan
+      if (lbScale > 1) {
         e.preventDefault();
-        lbScale = 2;
-        img.style.transition = 'transform 0.25s ease';
-        lbTransform();
-        setTimeout(function() { img.style.transition = ''; }, 250);
-        lbTapTimer = null;
-      } else {
-        lbTapTimer = now;
+        lbDragging = true;
+        lbLastX = e.touches[0].clientX;
+        lbLastY = e.touches[0].clientY;
       }
     }
   }
