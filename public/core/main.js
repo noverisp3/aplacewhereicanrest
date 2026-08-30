@@ -211,7 +211,7 @@ async function submitPost(){
     var res=await fetch(API+'/api/posts',{method:'POST',headers:authHeaders(),body:JSON.stringify({content:c,image:pendingImage})});
     if(res.status===401){handleAuthFail();return}
     pendingImage=null;renderPreview();
-    var ta=document.getElementById('post-content');ta.value='';ta.style.height='auto';
+    var ta=document.getElementById('post-content');ta.value='';ta.style.height='auto';ta._minH=0;
     localStorage.removeItem('draft_text');
     var cc=document.getElementById('char-count');if(cc)cc.textContent='';
     nextCursor=null;await loadPosts(false);notify('posted')
@@ -279,8 +279,10 @@ document.addEventListener('DOMContentLoaded',function(){
     if (cc && draft) cc.textContent = draft.length + ' ký tự';
 
     ta.addEventListener('input', function() {
+      if (!this._minH) this._minH = this.offsetHeight;
       this.style.height = 'auto';
-      this.style.height = this.scrollHeight + 'px';
+      var newH = Math.max(this._minH, this.scrollHeight);
+      this.style.height = newH + 'px';
       // Char count
       var len = this.value.length;
       if (cc) cc.textContent = len > 0 ? len + ' ký tự' : '';
