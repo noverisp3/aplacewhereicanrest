@@ -121,7 +121,6 @@ body {
   line-height: 1.7;
   min-height: 100vh;
   transition: background 0.4s, color 0.4s;
-  scrollbar-gutter: stable;
 }
 
 ::selection {
