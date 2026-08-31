@@ -211,6 +211,9 @@ async function submitPost(){
   if(!c&&!pendingImage)return;
   var token=getToken();
   if(!token)return;
+  var pc=document.getElementById('posts-container');
+  var postSkeleton='<div class="skeleton" id="post-pending"><div class="skel-line w80"></div><div class="skel-line w60"></div>'+(pendingImage?'<div class="skel-img"></div>':'')+'<div class="skel-footer"><div class="skel-dot"></div></div></div>';
+  pc.insertAdjacentHTML('afterbegin',postSkeleton);
   try{
     var res=await fetch(API+'/api/posts',{method:'POST',headers:authHeaders(),body:JSON.stringify({content:c,image:pendingImage})});
     if(res.status===401){handleAuthFail();return}
