@@ -115,8 +115,26 @@ export default {
     if (path === '/api/posts' && request.method === 'POST') {
       const body = await request.json();
       const id = Date.now().toString(36) + Math.random().toString(36).substr(2, 5);
-      const date = new Date().toLocaleString('vi-VN', { timeZone: 'Asia/Ho_Chi_Minh', day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' });
-      await env.DB.prepare('INSERT INTO posts (id, content, image, date) VALUES (?, ?, ?, ?)').bind(id, body.content || '', body.image || '', date).run();
+      const now = new Date();
+      const vn = new Date(now.toLocaleString('en-US', { timeZone: 'Asia/Ho_Chi_Minh' }));
+      const date = String(vn.getDate()).padStart(2, '0') + '/' + String(vn.getMonth() + 1).padStart(2, '0') + '/' + vn.getFullYear() + ' ' + String(vn.getHours()).padStart(2, '0') + ':' + String(vn.getMinutes()).padStart(2, '0');
+      let imageUrl = body.image || '';
+      if (imageUrl.startsWith('data:image')) {
+        try {
+          const base64Data = imageUrl.split(',')[1];
+          const form = new FormData();
+          form.append('key', env.IMGBB_KEY);
+          form.append('image', base64Data);
+          const imgRes = await fetch('https://api.imgbb.com/1/upload', {
+            method: 'POST',
+            headers: { 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36' },
+            body: form
+          });
+          const imgData = await imgRes.json();
+          if (imgData.success) imageUrl = imgData.data.url;
+        } catch (e) { /* keep base64 if upload fails */ }
+      }
+      await env.DB.prepare('INSERT INTO posts (id, content, image, date) VALUES (?, ?, ?, ?)').bind(id, body.content || '', imageUrl, date).run();
       return json({ ok: true, id }, cors);
     }
 
