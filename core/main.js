@@ -110,7 +110,7 @@ async function loadPosts(append) {
       counter.textContent = total + (total === 1 ? ' post' : ' posts');
     }
     const html = data.posts.map(p => {
-      const img = p.image ? '<img src="' + p.image + '" class="post-image" alt="" onclick="openLightbox(\'' + p.image.replace(/'/g, "\\'") + '\')" style="cursor:zoom-in">' : '';
+      const img = p.image ? '<div class="post-image-wrap"><div class="post-image-skel"></div><img src="' + p.image + '" class="post-image" alt="" onclick="openLightbox(\'' + p.image.replace(/'/g, "\\'") + '\')" style="cursor:zoom-in" onload="this.classList.add(\'loaded\');this.previousElementSibling.remove()"></div>' : '';
       const txt = p.content ? '<div class="post-body">' + esc(p.content) + '</div>' : '';
       return '<div class="post post-hidden">' + txt + img + '<div class="post-footer"><span class="post-date">' + p.date + '</span><button class="post-delete" data-id="' + p.id + '">delete</button></div></div>';
     }).join('');
