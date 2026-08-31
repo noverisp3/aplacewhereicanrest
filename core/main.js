@@ -304,10 +304,16 @@ function closeLightbox(e) {
 function downloadLightbox(e) {
   e.stopPropagation();
   if (!lightboxSrc) return;
-  var a = document.createElement('a');
-  a.href = lightboxSrc;
-  a.download = 'image-' + Date.now() + '.webp';
-  a.click();
+  fetch(lightboxSrc).then(function(r){return r.blob()}).then(function(blob){
+    var url = URL.createObjectURL(blob);
+    var a = document.createElement('a');
+    a.href = url;
+    a.download = 'image-' + Date.now() + '.webp';
+    a.click();
+    URL.revokeObjectURL(url);
+  }).catch(function(){
+    window.open(lightboxSrc, '_blank');
+  });
 }
 
 // PC: wheel zoom
