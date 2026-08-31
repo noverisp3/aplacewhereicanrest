@@ -76,7 +76,7 @@ export default {
     }
 
     // Verify token on all other API routes
-    if (path.startsWith('/api/')) {
+    if (path.startsWith('/api/') && path !== '/api/img-proxy') {
       const auth = request.headers.get('authorization') || '';
       const token = auth.replace('Bearer ', '');
       if (!token || !(await verifyToken(token, secret))) {
