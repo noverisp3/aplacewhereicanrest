@@ -211,14 +211,15 @@ async function submitPost(){
   if(!c&&!pendingImage)return;
   var token=getToken();
   if(!token)return;
+  var imgToSend=pendingImage;
   var pc=document.getElementById('posts-container');
-  var postSkeleton='<div class="skeleton" id="post-pending"><div class="skel-line w80"></div><div class="skel-line w60"></div>'+(pendingImage?'<div class="skel-img"></div>':'')+'<div class="skel-footer"><div class="skel-dot"></div></div></div>';
+  var postSkeleton='<div class="skeleton" id="post-pending"><div class="skel-line w80"></div><div class="skel-line w60"></div>'+(imgToSend?'<div class="skel-img"></div>':'')+'<div class="skel-footer"><div class="skel-dot"></div></div></div>';
   pc.insertAdjacentHTML('afterbegin',postSkeleton);
   var ta=document.getElementById('post-content');ta.value='';ta.style.height='auto';ta._minH=0;
   pendingImage=null;renderPreview();
   localStorage.removeItem('draft_text');
   try{
-    var res=await fetch(API+'/api/posts',{method:'POST',headers:authHeaders(),body:JSON.stringify({content:c,image:pendingImage})});
+    var res=await fetch(API+'/api/posts',{method:'POST',headers:authHeaders(),body:JSON.stringify({content:c,image:imgToSend})});
     if(res.status===401){handleAuthFail();return}
     nextCursor=null;await loadPosts(false);notify('posted')
   }catch(e){notify('failed to post')}
