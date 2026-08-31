@@ -2,6 +2,11 @@ const API = '';
 let nextCursor = null;
 let loading = false;
 
+function proxiedImg(url) {
+  if (!url || !url.includes('i.ibb.co')) return url;
+  return API + '/api/img-proxy?url=' + encodeURIComponent(url);
+}
+
 // auth - token based
 function getToken(){return localStorage.getItem('auth_token')||''}
 function setToken(t){localStorage.setItem('auth_token',t)}
@@ -110,7 +115,8 @@ async function loadPosts(append) {
       counter.textContent = total + (total === 1 ? ' post' : ' posts');
     }
     const html = data.posts.map(p => {
-      const img = p.image ? '<div class="post-image-wrap"><div class="post-image-skel"></div><img src="' + p.image + '" class="post-image" alt="" onclick="openLightbox(\'' + p.image.replace(/'/g, "\\'") + '\')" style="cursor:zoom-in" onload="this.classList.add(\'loaded\');this.previousElementSibling.remove()"></div>' : '';
+      var imgSrc = proxiedImg(p.image);
+      const img = p.image ? '<div class="post-image-wrap"><div class="post-image-skel"></div><img src="' + imgSrc + '" class="post-image" alt="" onclick="openLightbox(\'' + p.image.replace(/'/g, "\\'") + '\')" style="cursor:zoom-in" onload="this.classList.add(\'loaded\');this.previousElementSibling.remove()"></div>' : '';
       const txt = p.content ? '<div class="post-body">' + esc(p.content) + '</div>' : '';
       return '<div class="post post-hidden">' + txt + img + '<div class="post-footer"><span class="post-date">' + p.date + '</span><button class="post-delete" data-id="' + p.id + '">delete</button></div></div>';
     }).join('');
@@ -290,7 +296,7 @@ function openLightbox(src) {
   lightboxSrc = src;
   lbScale = 1; lbX = 0; lbY = 0;
   var img = document.getElementById('lightbox-img');
-  img.src = src;
+  img.src = proxiedImg(src);
   img.style.transform = '';
   document.getElementById('lightbox').classList.add('open');
   document.body.style.overflow = 'hidden';
