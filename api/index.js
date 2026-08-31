@@ -17,7 +17,13 @@ async function verifyToken(token, secret) {
   const ts = token.substring(0, sep);
   const sig = token.substring(sep + 1);
   const expected = await hmacSign(ts, secret);
-  if (sig !== expected) return false;
+  // Timing-safe comparison
+  const a = new TextEncoder().encode(sig);
+  const b = new TextEncoder().encode(expected);
+  if (a.length !== b.length) return false;
+  let diff = 0;
+  for (let i = 0; i < a.length; i++) diff |= a[i] ^ b[i];
+  if (diff !== 0) return false;
   const age = Date.now() - parseInt(ts);
   return age >= 0 && age < TOKEN_TTL;
 }
@@ -86,7 +92,7 @@ export default {
 
     // API routes
     if (path === '/api/posts' && request.method === 'GET') {
-      const limit = parseInt(url.searchParams.get('limit') || '10');
+      const limit = Math.min(parseInt(url.searchParams.get('limit') || '10'), 50);
       const cursor = url.searchParams.get('cursor');
       const q = url.searchParams.get('q') || '';
       const from = url.searchParams.get('from') || '';
@@ -114,7 +120,14 @@ export default {
 
     if (path === '/api/posts' && request.method === 'POST') {
       const body = await request.json();
-      const id = Date.now().toString(36) + Math.random().toString(36).substr(2, 5);
+      // Content size limit: 10KB text, 5MB image
+      if ((body.content || '').length > 10000) {
+        return json({ error: 'content too long (max 10KB)' }, cors, 400);
+      }
+      if ((body.image || '').length > 5000000) {
+        return json({ error: 'image too large (max 5MB)' }, cors, 400);
+      }
+      const id = Date.now().toString(36) + Array.from(crypto.getRandomValues(new Uint8Array(5))).map(b => b.toString(36).padStart(2, '0')).join('');
       const now = new Date();
       const vn = new Date(now.toLocaleString('en-US', { timeZone: 'Asia/Ho_Chi_Minh' }));
       const date = String(vn.getDate()).padStart(2, '0') + '/' + String(vn.getMonth() + 1).padStart(2, '0') + '/' + vn.getFullYear() + ' ' + String(vn.getHours()).padStart(2, '0') + ':' + String(vn.getMinutes()).padStart(2, '0');
@@ -156,12 +169,23 @@ export default {
       return json({ activity: results }, cors);
     }
 
-    // Image proxy (cache imgbb images on Cloudflare CDN)
+    // Image proxy (cache imgbb images on Cloudflare CDN, rate limited)
     if (path === '/api/img-proxy') {
       const imageUrl = url.searchParams.get('url');
       if (!imageUrl || !imageUrl.startsWith('https://i.ibb.co/')) {
         return new Response('Invalid URL', { status: 400 });
       }
+      // Rate limit: 30 requests per minute per IP
+      const now = Date.now();
+      const key = 'imgproxy:' + ip;
+      if (!globalThis._imgProxyRate) globalThis._imgProxyRate = {};
+      const reqs = globalThis._imgProxyRate[key] || [];
+      const recent = reqs.filter(t => now - t < 60000);
+      if (recent.length >= 30) {
+        return new Response('Rate limit', { status: 429 });
+      }
+      recent.push(now);
+      globalThis._imgProxyRate[key] = recent;
       const cache = caches.default;
       const cacheKey = new Request(imageUrl, { method: 'GET' });
       let response = await cache.match(cacheKey);
