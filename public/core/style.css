@@ -695,6 +695,81 @@ footer {
   100% { opacity: 0; }
 }
 
+/* pending posts popup */
+.pending-popup {
+  display: none;
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(0,0,0,0.3);
+  z-index: 200;
+  justify-content: center;
+  align-items: center;
+}
+.pending-popup.open {
+  display: flex;
+}
+.pending-panel {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 20px;
+  width: 90%;
+  max-width: 420px;
+  max-height: 70vh;
+  overflow-y: auto;
+}
+.pending-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+  font-size: 0.85rem;
+}
+.pending-header strong {
+  color: var(--accent);
+}
+.pending-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+.pending-item {
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 12px;
+}
+.pending-text {
+  font-size: 0.8rem;
+  margin-bottom: 4px;
+  line-height: 1.4;
+}
+.pending-time {
+  font-size: 0.65rem;
+  color: var(--text-dim);
+  margin-bottom: 8px;
+}
+.pending-actions {
+  display: flex;
+  gap: 8px;
+}
+.btn-soft {
+  background: none;
+  color: var(--text-dim);
+}
+.btn-soft:hover {
+  color: var(--text);
+}
+.pending-no.confirm {
+  color: var(--accent) !important;
+}
+.pending-footer {
+  display: flex;
+  justify-content: flex-end;
+  border-top: 1px solid var(--border);
+  padding-top: 12px;
+}
+
 /* lightbox */
 
 .lightbox {

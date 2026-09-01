@@ -74,6 +74,19 @@
 
   <script src="core/main.js"></script>
 
+  <div class="pending-popup" id="pending-popup">
+    <div class="pending-panel">
+      <div class="pending-header">
+        <span>you have <strong id="pending-count">0</strong> pending posts</span>
+        <button class="cal-close" onclick="document.getElementById('pending-popup').classList.remove('open')">&times;</button>
+      </div>
+      <div class="pending-list" id="pending-list"></div>
+      <div class="pending-footer">
+        <button class="btn btn-sm" onclick="retryAllPending()">upload all</button>
+      </div>
+    </div>
+  </div>
+
   <div class="lightbox" id="lightbox" onclick="closeLightbox(event)">
     <div class="lightbox-actions">
       <button class="lightbox-btn" id="lightbox-download" onclick="downloadLightbox(event)" title="download">

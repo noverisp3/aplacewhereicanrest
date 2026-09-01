@@ -224,12 +224,90 @@ async function submitPost(){
   var ta=document.getElementById('post-content');ta.value='';ta.style.height='auto';ta._minH=0;
   pendingImage=null;renderPreview();
   localStorage.removeItem('draft_text');
+  if(!navigator.onLine){
+    saveOfflinePost(c,imgToSend);
+    document.getElementById('post-pending')?.remove();
+    notify('saved offline — will upload when connected');
+    return;
+  }
   try{
     var res=await fetch(API+'/api/posts',{method:'POST',headers:authHeaders(),body:JSON.stringify({content:c,image:imgToSend})});
     if(res.status===401){handleAuthFail();return}
     nextCursor=null;await loadPosts(false);notify('posted')
-  }catch(e){notify('failed to post')}
+  }catch(e){
+    saveOfflinePost(c,imgToSend);
+    document.getElementById('post-pending')?.remove();
+    notify('saved offline — will upload when connected');
+  }
 }
+
+// offline queue
+function getOfflineQueue(){try{return JSON.parse(localStorage.getItem('offline_queue')||'[]')}catch(e){return[]}}
+function saveOfflinePost(content,image){
+  var q=getOfflineQueue();
+  q.push({content:content,image:image||'',time:new Date().toLocaleString('vi-VN',{timeZone:'Asia/Ho_Chi_Minh'})});
+  localStorage.setItem('offline_queue',JSON.stringify(q));
+}
+function removeOfflinePost(i){
+  var q=getOfflineQueue();
+  q.splice(i,1);
+  localStorage.setItem('offline_queue',JSON.stringify(q));
+}
+function showPendingPopup(){
+  var q=getOfflineQueue();
+  if(!q.length)return;
+  var el=document.getElementById('pending-popup');
+  var list=document.getElementById('pending-list');
+  list.innerHTML=q.map(function(p,i){
+    var preview=p.content?p.content.substring(0,60)+(p.content.length>60?'...':''):'[image only]';
+    var img=p.image?'<span style="color:var(--text-dim);font-size:0.6rem"> + image</span>':'';
+    return '<div class="pending-item"><div class="pending-text">'+preview+img+'</div><div class="pending-time">'+p.time+'</div><div class="pending-actions"><button class="btn btn-sm" onclick="retryPending('+i+')">upload</button><button class="btn btn-sm btn-soft pending-no" data-idx="'+i+'">no</button></div></div>';
+  }).join('');
+  document.getElementById('pending-count').textContent=q.length;
+  el.classList.add('open');
+}
+function retryPending(i){
+  var q=getOfflineQueue();
+  var post=q[i];
+  if(!post)return;
+  fetch(API+'/api/posts',{method:'POST',headers:authHeaders(),body:JSON.stringify({content:post.content,image:post.image})}).then(function(r){
+    if(r.ok){removeOfflinePost(i);notify('uploaded');var q2=getOfflineQueue();if(q2.length)showPendingPopup();else document.getElementById('pending-popup').classList.remove('open');nextCursor=null;loadPosts(false)}
+    else{notify('upload failed')}
+  }).catch(function(){notify('upload failed')});
+}
+function retryAllPending(){
+  var q=getOfflineQueue();
+  if(!q.length)return;
+  var i=q.length-1;
+  function next(){
+    if(i<0){document.getElementById('pending-popup').classList.remove('open');nextCursor=null;loadPosts(false);return}
+    fetch(API+'/api/posts',{method:'POST',headers:authHeaders(),body:JSON.stringify({content:q[i].content,image:q[i].image})}).then(function(r){
+      if(r.ok)removeOfflinePost(i);
+      i--;next();
+    }).catch(function(){i--;next()});
+  }
+  next();
+}
+
+// online/offline detection
+window.addEventListener('online',function(){notify('back online');setTimeout(showPendingPopup,1000)});
+window.addEventListener('offline',function(){notify('you are offline')});
+
+// pending no button (2-click confirm)
+document.addEventListener('click',function(e){
+  if(e.target.classList.contains('pending-no')){
+    if(e.target.classList.contains('confirm')){
+      var i=parseInt(e.target.dataset.idx);
+      removeOfflinePost(i);
+      var q=getOfflineQueue();
+      if(q.length)showPendingPopup();else document.getElementById('pending-popup').classList.remove('open');
+    }else{
+      e.target.textContent='no?';
+      e.target.classList.add('confirm');
+      setTimeout(function(){e.target.textContent='no';e.target.classList.remove('confirm')},5000);
+    }
+  }
+});
 
 var deleteConfirmId = null;
 var deleteTimer = null;
@@ -472,7 +550,8 @@ document.addEventListener('DOMContentLoaded',function(){
   applyTheme();
   document.getElementById('current-year').textContent=new Date().getFullYear();
   checkAuth();
-  if(getToken()) loadPosts(false);
+  if(getToken())loadPosts(false);
+  if(navigator.onLine&&getToken())setTimeout(showPendingPopup,1500);
   setupInfiniteScroll();
 
   var ta = document.getElementById('post-content');
