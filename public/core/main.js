@@ -256,35 +256,28 @@ function removeOfflinePost(i){
 function showPendingPopup(){
   var q=getOfflineQueue();
   if(!q.length)return;
-  var el=document.getElementById('pending-popup');
-  var list=document.getElementById('pending-list');
-  list.innerHTML=q.map(function(p,i){
-    var preview=p.content?p.content.substring(0,60)+(p.content.length>60?'...':''):'[image only]';
-    var img=p.image?'<span style="color:var(--text-dim);font-size:0.6rem"> + image</span>':'';
-    return '<div class="pending-item"><div class="pending-text">'+preview+img+'</div><div class="pending-time">'+p.time+'</div><div class="pending-actions"><button class="btn btn-sm" onclick="retryPending('+i+')">upload</button><button class="btn btn-sm btn-soft pending-no" data-idx="'+i+'">no</button></div></div>';
-  }).join('');
   document.getElementById('pending-count').textContent=q.length;
-  el.classList.add('open');
+  document.getElementById('pending-popup').classList.add('open');
 }
-function retryPending(i){
+function retryPending(){
   var q=getOfflineQueue();
-  var post=q[i];
-  if(!post)return;
+  if(!q.length)return;
+  var post=q[0];
   fetch(API+'/api/posts',{method:'POST',headers:authHeaders(),body:JSON.stringify({content:post.content,image:post.image})}).then(function(r){
-    if(r.ok){removeOfflinePost(i);notify('uploaded');var q2=getOfflineQueue();if(q2.length)showPendingPopup();else document.getElementById('pending-popup').classList.remove('open');nextCursor=null;loadPosts(false)}
+    if(r.ok){removeOfflinePost(0);notify('uploaded');var q2=getOfflineQueue();if(q2.length)showPendingPopup();else document.getElementById('pending-popup').classList.remove('open');nextCursor=null;loadPosts(false)}
     else{notify('upload failed')}
   }).catch(function(){notify('upload failed')});
 }
 function retryAllPending(){
   var q=getOfflineQueue();
   if(!q.length)return;
-  var i=q.length-1;
+  var i=0;
   function next(){
-    if(i<0){document.getElementById('pending-popup').classList.remove('open');nextCursor=null;loadPosts(false);return}
+    if(i>=q.length){document.getElementById('pending-popup').classList.remove('open');nextCursor=null;loadPosts(false);return}
     fetch(API+'/api/posts',{method:'POST',headers:authHeaders(),body:JSON.stringify({content:q[i].content,image:q[i].image})}).then(function(r){
-      if(r.ok)removeOfflinePost(i);
-      i--;next();
-    }).catch(function(){i--;next()});
+      if(r.ok)removeOfflinePost(i);else i++;
+      next();
+    }).catch(function(){i++;next()});
   }
   next();
 }
@@ -297,10 +290,7 @@ window.addEventListener('offline',function(){notify('you are offline')});
 document.addEventListener('click',function(e){
   if(e.target.classList.contains('pending-no')){
     if(e.target.classList.contains('confirm')){
-      var i=parseInt(e.target.dataset.idx);
-      removeOfflinePost(i);
-      var q=getOfflineQueue();
-      if(q.length)showPendingPopup();else document.getElementById('pending-popup').classList.remove('open');
+      document.getElementById('pending-popup').classList.remove('open');
     }else{
       e.target.textContent='no?';
       e.target.classList.add('confirm');

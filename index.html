@@ -76,13 +76,10 @@
 
   <div class="pending-popup" id="pending-popup">
     <div class="pending-panel">
-      <div class="pending-header">
-        <span>you have <strong id="pending-count">0</strong> pending posts</span>
-        <button class="cal-close" onclick="document.getElementById('pending-popup').classList.remove('open')">&times;</button>
-      </div>
-      <div class="pending-list" id="pending-list"></div>
-      <div class="pending-footer">
-        <button class="btn btn-sm" onclick="retryAllPending()">upload all</button>
+      <div class="pending-msg">you have <strong id="pending-count">0</strong> pending posts</div>
+      <div class="pending-btns">
+        <button class="btn btn-sm" onclick="retryAllPending()">upload</button>
+        <button class="btn btn-sm btn-soft pending-no">no</button>
       </div>
     </div>
   </div>

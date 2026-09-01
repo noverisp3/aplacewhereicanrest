@@ -712,62 +712,34 @@ footer {
   background: var(--card);
   border: 1px solid var(--border);
   border-radius: 12px;
-  padding: 20px;
+  padding: 24px;
   width: 90%;
-  max-width: 420px;
-  max-height: 70vh;
-  overflow-y: auto;
+  max-width: 360px;
+  text-align: center;
 }
-.pending-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 16px;
+.pending-msg {
   font-size: 0.85rem;
+  color: var(--text);
+  margin-bottom: 20px;
+  line-height: 1.5;
 }
-.pending-header strong {
+.pending-msg strong {
   color: var(--accent);
 }
-.pending-list {
+.pending-btns {
   display: flex;
-  flex-direction: column;
+  justify-content: center;
   gap: 12px;
-  margin-bottom: 16px;
 }
-.pending-item {
-  border: 1px solid var(--border);
-  border-radius: 8px;
-  padding: 12px;
-}
-.pending-text {
-  font-size: 0.8rem;
-  margin-bottom: 4px;
-  line-height: 1.4;
-}
-.pending-time {
-  font-size: 0.65rem;
-  color: var(--text-dim);
-  margin-bottom: 8px;
-}
-.pending-actions {
-  display: flex;
-  gap: 8px;
-}
-.btn-soft {
+.pending-btns .btn-soft {
   background: none;
   color: var(--text-dim);
 }
-.btn-soft:hover {
+.pending-btns .btn-soft:hover {
   color: var(--text);
 }
-.pending-no.confirm {
+.pending-btns .btn-soft.confirm {
   color: var(--accent) !important;
-}
-.pending-footer {
-  display: flex;
-  justify-content: flex-end;
-  border-top: 1px solid var(--border);
-  padding-top: 12px;
 }
 
 /* lightbox */
