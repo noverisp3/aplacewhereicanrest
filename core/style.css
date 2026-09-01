@@ -140,6 +140,7 @@ header {
 }
 
 .title {
+  font-family: Georgia, 'Times New Roman', serif;
   font-size: 1.6rem;
   font-weight: 400;
   letter-spacing: 0.08em;
