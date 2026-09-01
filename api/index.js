@@ -229,8 +229,8 @@ export default {
     }
 
     if (path === '/manifest.json') {
-      const mf = await env.ASSETS.fetch(request);
-      return new Response(mf.body, { headers: { 'Content-Type': 'application/json', 'Cache-Control': 'public, max-age=86400' } });
+      const mf = '{"name":"a place where i can rest","short_name":"rest","description":"my daily journal","start_url":"/","display":"standalone","background_color":"#f9f8f6","theme_color":"#3d3a36","icons":[{"src":"/assets/favicon.svg","sizes":"any","type":"image/svg+xml"}]}';
+      return new Response(mf, { headers: { 'Content-Type': 'application/json', 'Cache-Control': 'public, max-age=86400' } });
     }
 
     if (path === '/service-worker.js') {
