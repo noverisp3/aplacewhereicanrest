@@ -709,7 +709,7 @@ footer {
   display: flex;
 }
 .pending-panel {
-  background: var(--card);
+  background: var(--bg);
   border: 1px solid var(--border);
   border-radius: 12px;
   padding: 24px;
@@ -732,7 +732,7 @@ footer {
   gap: 12px;
 }
 .pending-btns .btn-soft {
-  background: none;
+  background: var(--card);
   color: var(--text-dim);
 }
 .pending-btns .btn-soft:hover {
