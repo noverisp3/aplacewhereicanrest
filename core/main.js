@@ -245,7 +245,10 @@ async function submitPost(){
 function getOfflineQueue(){try{return JSON.parse(localStorage.getItem('offline_queue')||'[]')}catch(e){return[]}}
 function saveOfflinePost(content,image){
   var q=getOfflineQueue();
-  q.push({content:content,image:image||'',time:new Date().toLocaleString('vi-VN',{timeZone:'Asia/Ho_Chi_Minh'})});
+  var now=new Date();
+  var vn=new Date(now.toLocaleString('en-US',{timeZone:'Asia/Ho_Chi_Minh'}));
+  var time=String(vn.getDate()).padStart(2,'0')+'/'+String(vn.getMonth()+1).padStart(2,'0')+'/'+vn.getFullYear()+' '+String(vn.getHours()).padStart(2,'0')+':'+String(vn.getMinutes()).padStart(2,'0');
+  q.push({content:content,image:image||'',time:time});
   localStorage.setItem('offline_queue',JSON.stringify(q));
 }
 function removeOfflinePost(i){
@@ -274,7 +277,8 @@ function retryAllPending(){
   var i=0;
   function next(){
     if(i>=q.length){document.getElementById('pending-popup').classList.remove('open');nextCursor=null;loadPosts(false);return}
-    fetch(API+'/api/posts',{method:'POST',headers:authHeaders(),body:JSON.stringify({content:q[i].content,image:q[i].image})}).then(function(r){
+    var post=q[i];
+    fetch(API+'/api/posts',{method:'POST',headers:authHeaders(),body:JSON.stringify({content:post.content,image:post.image,date:post.time})}).then(function(r){
       if(r.ok)removeOfflinePost(i);
       i++;next();
     }).catch(function(){i++;next()});

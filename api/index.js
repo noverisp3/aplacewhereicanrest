@@ -128,9 +128,14 @@ export default {
         return json({ error: 'image too large (max 5MB)' }, cors, 400);
       }
       const id = Date.now().toString(36) + Array.from(crypto.getRandomValues(new Uint8Array(5))).map(b => b.toString(36).padStart(2, '0')).join('');
-      const now = new Date();
-      const vn = new Date(now.toLocaleString('en-US', { timeZone: 'Asia/Ho_Chi_Minh' }));
-      const date = String(vn.getDate()).padStart(2, '0') + '/' + String(vn.getMonth() + 1).padStart(2, '0') + '/' + vn.getFullYear() + ' ' + String(vn.getHours()).padStart(2, '0') + ':' + String(vn.getMinutes()).padStart(2, '0');
+      let date;
+      if (body.date) {
+        date = body.date;
+      } else {
+        const now = new Date();
+        const vn = new Date(now.toLocaleString('en-US', { timeZone: 'Asia/Ho_Chi_Minh' }));
+        date = String(vn.getDate()).padStart(2, '0') + '/' + String(vn.getMonth() + 1).padStart(2, '0') + '/' + vn.getFullYear() + ' ' + String(vn.getHours()).padStart(2, '0') + ':' + String(vn.getMinutes()).padStart(2, '0');
+      }
       let imageUrl = body.image || '';
       if (imageUrl.startsWith('data:image')) {
         try {
