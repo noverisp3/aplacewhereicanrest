@@ -275,8 +275,8 @@ function retryAllPending(){
   function next(){
     if(i>=q.length){document.getElementById('pending-popup').classList.remove('open');nextCursor=null;loadPosts(false);return}
     fetch(API+'/api/posts',{method:'POST',headers:authHeaders(),body:JSON.stringify({content:q[i].content,image:q[i].image})}).then(function(r){
-      if(r.ok)removeOfflinePost(i);else i++;
-      next();
+      if(r.ok)removeOfflinePost(i);
+      i++;next();
     }).catch(function(){i++;next()});
   }
   next();
